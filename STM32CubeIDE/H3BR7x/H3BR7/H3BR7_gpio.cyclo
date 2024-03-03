@@ -1,0 +1,5 @@
+..\..\H3BR7\H3BR7_gpio.c:22:6:GPIO_Init	1
+..\..\H3BR7\H3BR7_gpio.c:34:6:IND_LED_Init	1
+..\..\H3BR7\H3BR7_gpio.c:44:6:seven_seg_gpio_init	1
+..\..\H3BR7\H3BR7_gpio.c:92:9:IsFactoryReset	3
+..\..\H3BR7\H3BR7_gpio.c:143:12:GetPortGPIOs	6
