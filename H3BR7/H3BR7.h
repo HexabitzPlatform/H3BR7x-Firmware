@@ -141,7 +141,19 @@
 
 #define Seven_seg_Enable_6_Pin 			GPIO_PIN_0
 #define Seven_seg_Enable_6_GPIO_Port 	GPIOA
+/*  Pins For LEDs Indicator */
 
+#define Led_Indicator1_Pin 			    GPIO_PIN_5
+#define Led_Indicator1_GPIO_Port 	    GPIOB
+
+#define Led_Indicator2_Pin 			    GPIO_PIN_4
+#define Led_Indicator2_GPIO_Port 	    GPIOB
+
+#define Led_Indicator3_Pin 			    GPIO_PIN_14
+#define Led_Indicator3_GPIO_Port 	    GPIOB
+
+#define Led_Indicator4_Pin 			    GPIO_PIN_13
+#define Led_Indicator4_GPIO_Port 	    GPIOB
 
 /* Module EEPROM Variables */
 
