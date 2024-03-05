@@ -80,6 +80,16 @@ void seven_seg_gpio_init(void)
 	  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+	  /*Configure GPIO pin Output Level */
+	   HAL_GPIO_WritePin(GPIOB, Led_Indicator1_Pin|Led_Indicator2_Pin|Led_Indicator3_Pin|Led_Indicator4_Pin, GPIO_PIN_SET);
+
+	   /*Configure GPIO pins : LEDs(1,2,3,4) */
+	   GPIO_InitStruct.Pin = Led_Indicator1_Pin|Led_Indicator2_Pin|Led_Indicator3_Pin|Led_Indicator4_Pin;
+	   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	   GPIO_InitStruct.Pull = GPIO_NOPULL;
+	   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
 
 	}
 
