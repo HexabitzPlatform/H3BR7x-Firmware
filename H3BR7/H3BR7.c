@@ -38,8 +38,6 @@ uint8_t Res_it;          //A global variable to specify the index of the comma
 uint8_t StartSevSeg_it;  //A global variable to specify the index of the comma
 int Comma_flag=0;        //Activate a flag when a float number is shown
 
-IndicatorLED statusLed=offled;     //for indicator leds
-IndicatorLED statusLed_old=onled;  //for indicator leds
 
 uint8_t  Moving_sentence_buffer[MOVING_SENTENCE_MAX_LENGTH + 6] = {0};
 uint8_t  Moving_sentence_length = 0;
@@ -1442,35 +1440,28 @@ Module_Status SetIndicator( IndicatorLED indicator ){
 
     if(indicator==Ind1)
     {
-		statusLed|=0x02;
+
 	}
 
 	else if(indicator==Ind2)
 	{
-		statusLed|=0x04;
+
 	}
 
 	else if(indicator==Ind3)
 	{
-		statusLed|=0x40;
+
 	}
 
 	else if(indicator==Ind4)
 	{
-		statusLed|=0x80;
+
 	}
 
 	else
 	{
 		status=H3BR7_ERROR;
 		return status;
-	}
-
-	Digit[6]=statusLed;
-	statusLed_old=statusLed;
-	if(statusLed==0xC6)
-	{
-		statusLed=offled;
 	}
 
 	return status;
@@ -1483,22 +1474,22 @@ Module_Status ClearIndicator(IndicatorLED  indicator){
 
 	if(indicator==Ind1)
 	{
-		statusLed_old&=0xFD;
+
 	}
 
 	else if(indicator==Ind2)
 	{
-		statusLed_old&=0xC2;
+
 	}
 
 	else if(indicator==Ind3)
 	{
-		statusLed_old&=0x86;
+
 	}
 
 	else if(indicator==Ind4)
 	{
-		statusLed_old&=0x46;
+
 	}
 
 	else
@@ -1507,8 +1498,6 @@ Module_Status ClearIndicator(IndicatorLED  indicator){
 		return status;
 	}
 
-	Digit[6]=statusLed_old;
-	statusLed=statusLed_old;
 
 	return status;
 

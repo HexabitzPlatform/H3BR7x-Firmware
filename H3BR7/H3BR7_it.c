@@ -63,11 +63,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		HAL_GPIO_WritePin(Seven_seg_Enable_4_GPIO_Port, Seven_seg_Enable_4_Pin, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(Seven_seg_Enable_5_GPIO_Port, Seven_seg_Enable_5_Pin, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(Seven_seg_Enable_6_GPIO_Port, Seven_seg_Enable_6_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(C_LED_GPIO_Port, C_LED_Pin, GPIO_PIN_SET);
-
-
-
-
 
 
 		HAL_GPIO_WritePin(Seven_seg_a_GPIO_Port, Seven_seg_a_Pin, 	Digit[index_7_seg] & 0b00000001);
@@ -108,7 +103,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				break;
 
 			case 6:
-				HAL_GPIO_WritePin(C_LED_GPIO_Port, C_LED_Pin, GPIO_PIN_RESET);
 				HAL_GPIO_WritePin(Seven_seg_DP_GPIO_Port, Seven_seg_DP_Pin, Digit[6] & 0b10000000);
 
 				break;
@@ -117,10 +111,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				break;
 
 		}
-
-
-
-
 
 
 		index_7_seg++;

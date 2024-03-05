@@ -142,8 +142,6 @@
 #define Seven_seg_Enable_6_Pin 			GPIO_PIN_0
 #define Seven_seg_Enable_6_GPIO_Port 	GPIOA
 
-#define C_LED_Pin 			            GPIO_PIN_14
-#define C_LED_GPIO_Port 	            GPIOB
 
 /* Module EEPROM Variables */
 
@@ -187,8 +185,6 @@ typedef enum{
 	Ind2,
 	Ind3,
 	Ind4,
-	offled=0x00,
-	onled=0xFF
 } IndicatorLED;
 
 /* -------------------------------------------------------------------------------*\
