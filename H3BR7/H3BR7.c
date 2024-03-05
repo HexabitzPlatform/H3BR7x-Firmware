@@ -1440,22 +1440,22 @@ Module_Status SetIndicator( IndicatorLED indicator ){
 
     if(indicator==Ind1)
     {
-
+    	HAL_GPIO_WritePin(Led_Indicator1_GPIO_Port, Led_Indicator1_Pin, GPIO_PIN_RESET);
 	}
 
 	else if(indicator==Ind2)
 	{
-
+		HAL_GPIO_WritePin(Led_Indicator2_GPIO_Port, Led_Indicator2_Pin, GPIO_PIN_RESET);
 	}
 
 	else if(indicator==Ind3)
 	{
-
+		HAL_GPIO_WritePin(Led_Indicator3_GPIO_Port, Led_Indicator3_Pin, GPIO_PIN_RESET);
 	}
 
 	else if(indicator==Ind4)
 	{
-
+		HAL_GPIO_WritePin(Led_Indicator4_GPIO_Port, Led_Indicator4_Pin, GPIO_PIN_RESET);
 	}
 
 	else
@@ -1472,24 +1472,25 @@ Module_Status ClearIndicator(IndicatorLED  indicator){
 
 	Module_Status status = H3BR7_OK;
 
-	if(indicator==Ind1)
-	{
 
+    if(indicator==Ind1)
+    {
+    	HAL_GPIO_WritePin(Led_Indicator1_GPIO_Port, Led_Indicator1_Pin, GPIO_PIN_SET);
 	}
 
 	else if(indicator==Ind2)
 	{
-
+		HAL_GPIO_WritePin(Led_Indicator2_GPIO_Port, Led_Indicator2_Pin, GPIO_PIN_SET);
 	}
 
 	else if(indicator==Ind3)
 	{
-
+		HAL_GPIO_WritePin(Led_Indicator3_GPIO_Port, Led_Indicator3_Pin, GPIO_PIN_SET);
 	}
 
 	else if(indicator==Ind4)
 	{
-
+		HAL_GPIO_WritePin(Led_Indicator4_GPIO_Port, Led_Indicator4_Pin, GPIO_PIN_SET);
 	}
 
 	else
