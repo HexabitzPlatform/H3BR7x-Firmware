@@ -932,447 +932,423 @@ Module_Status SevenDisplayNumber(int32_t Number, uint8_t StartSevSeg)
 			if(signal==1 && x==index_digit_last)continue;
 			Digit[x]=Empty;
 		}
-
+	HAL_Delay(10);
 	return status;
 
 }
 /* ----------------------------------------------------------------------------*/
 Module_Status SevenDisplayNumberF(float NumberF,uint8_t Res,uint8_t StartSevSeg)
 {
-	Module_Status status = H3BR7_OK;
+	Module_Status status =H3BR7_OK;
 	clear_all_digits();   //Seven segment display off
 
 	float max_value_comma;
 	float min_value_comma;
 	uint8_t index_digit_last;
-	uint8_t signal = 0;
+	uint8_t signal =0;
 	uint32_t Number_int;
 	uint8_t length;
-    uint8_t zero_flag = 0;
+	uint8_t zero_flag =0;
 
-    Res_it=Res;
-    StartSevSeg_it=StartSevSeg;
-    Comma_flag=1;
+	Res_it =Res;
+	StartSevSeg_it =StartSevSeg;
+	Comma_flag =1;
 
+	if((uint32_t )NumberF == 0)
+		zero_flag =1;
 
-
-    if((uint32_t)NumberF == 0) zero_flag = 1;
-
-    if( !(StartSevSeg >= 0 && StartSevSeg <= 5) )
-    	{
-    		status = H3BR7_ERR_WrongParams;
-    		Comma_flag=0;
-
-    		return status;
-    	}
-
-
-	switch(StartSevSeg){
-	case 0:
-	   max_value_comma=99999.9;
-	   min_value_comma=-9999.9;
-	   break;
-	case 1:
-		max_value_comma=9999.9;
-		min_value_comma=-999.9;
-		break;
-	case 2:
-		max_value_comma=999.9;
-		min_value_comma=-99.9;
-		break;
-	case 3:
-		max_value_comma=99.9;
-		min_value_comma=-9.9;
-		break;
-	case 4:
-		max_value_comma=9.9;
-		min_value_comma=-9;
-		break;
-
-	case 5:
-		max_value_comma=9;
-		min_value_comma=0;
-		break;
-	default:
-		break;
-
-	}
-
-	if(StartSevSeg==4 && ((NumberF<0 || NumberF>9.9) || (NumberF>0 || NumberF<0.9)))
-	{
-			status = H3BR7_NUMBER_IS_OUT_OF_RANGE;
-			Comma_flag=0;
-			return status;
-	}
-
-	if(StartSevSeg==5 && (NumberF>9 || NumberF<0))
-	{
-		   status = H3BR7_NUMBER_IS_OUT_OF_RANGE;
-		    Comma_flag=0;
-			return status;
-	}
-
-	 if(NumberF>max_value_comma || NumberF<min_value_comma)
-	 {
-		  status = H3BR7_NUMBER_IS_OUT_OF_RANGE;
-		  Comma_flag=0;
-		  return status;
-	 }
-
-	 if(NumberF < 0 )
-	 {
-		  signal = 1;
-		  NumberF *= -1;
-	 }
-
-
-   switch(Res){
-   case 0:
-	   	Number_int=(uint32_t)NumberF;
-	   	Comma_flag=0;
-	    break;
-   case 1:
-	    if(StartSevSeg == 5 ) Number_int=(uint32_t)NumberF;
-	    else Number_int=(uint32_t)(NumberF*10);
-	   break;
-   case 2:
-	    if(StartSevSeg == 5 ) Number_int=(uint32_t)NumberF;
-	    else Number_int=(uint32_t)(NumberF*100);
-	   break;
-   case 3:
-	    if(StartSevSeg == 5 ) Number_int=(uint32_t)NumberF;
-	    else Number_int=(uint32_t)(NumberF*1000);
-   	   break;
-   case 4:
-	    if(StartSevSeg == 5 ) Number_int=(uint32_t)NumberF;
-	    else Number_int=(uint32_t)(NumberF*10000);
-   	   break;
-   case 5:
-	    if(StartSevSeg == 5 ) Number_int=(uint32_t)NumberF;
-	    else Number_int=(uint32_t)(NumberF*100000);
-   	   break;
-   default:
-   		break;
-
-
-   }
-
-
-   			if(Number_int>0 && Number_int<=9)
-   			{
-   				length= 1;
-   			}
-
-   			if(Number_int>9 && Number_int<=99)
-   			{
-   				length= 2;
-   			}
-
-   			if(Number_int>99 && Number_int<=999)
-   			{
-   				length= 3;
-   			}
-
-   			if(Number_int>999 && Number_int<=9999)
-   			{
-   				length= 4;
-   			}
-
-   			if(Number_int>9999 && Number_int<=99999)
-   			{
-   				length= 5;
-   			}
-
-   			if(Number_int>99999 && Number_int<=999999)
-   			{
-   				length= 6;
-   			}
-
-
-   			if(zero_flag == 0) index_digit_last = length + StartSevSeg;
-   			else index_digit_last = Res + 1 + StartSevSeg;
-   				if(signal==1)
-   				{
-   					Digit[index_digit_last] = Symbol_minus;
-   					Digit[index_digit_last+1]=Empty;
-   				}
-
-   				for(int i = StartSevSeg; i < 6;i++)
-   					{
-   						if(i == index_digit_last && signal == 1) continue;
-   						Digit[i] = get_number_code(Number_int % 10);
-   						Number_int /= 10;
-   					}
-
-						for(int x=index_digit_last; x<6; x++)
-						{
-						if(signal==1 && x==index_digit_last)continue;
-						Digit[x]=Empty;
-						}
-	return status;
-}
-
-
-/* ----------------------------------------------------------------------------*/
-Module_Status SevenDisplayQuantities(float NumberF, uint8_t Res,char Unit ,uint8_t StartSevSeg){
-	Module_Status status = H3BR7_OK;
-	clear_all_digits();   //Seven segment display off
-
-		float max_value_comma;
-		float min_value_comma;
-		uint8_t index_digit_last;
-		uint8_t signal = 0;
-		uint32_t Number_int;
-		uint8_t length;
-		uint8_t zero_flag = 0;
-
-		Res_it=Res;
-		StartSevSeg_it=StartSevSeg+1;
-		Comma_flag=1;
-
-
-	    if((uint32_t)NumberF == 0) zero_flag = 1;
-
-	    if( !(StartSevSeg >= 0 && StartSevSeg <= 5) )
-	    	{
-	    		status = H3BR7_ERR_WrongParams;
-	    		Comma_flag=0;
-	    		return status;
-	    	}
-
-	    switch(StartSevSeg){
-	    		case 0:
-	    		    max_value_comma=9999.9;
-	    		    min_value_comma=-999.9;
-	    		   break;
-	    		case 1:
-	    			max_value_comma=999.9;
-	    			min_value_comma=-99.9;
-	    			break;
-	    		case 2:
-	    			max_value_comma=99.9;
-	    			min_value_comma=-9.9;
-	    			break;
-	    		case 3:
-	    			max_value_comma=9.9;
-	    			min_value_comma=0.9;
-	    			break;
-	    		case 4:
-	    			max_value_comma=9;
-	    			min_value_comma=0;
-	    			break;
-
-	    		case 5:
-	    			// Case 5 is a special case.
-
-	    			break;
-	    		default:
-	    			break;
-
-	    		}
-
-	    if(StartSevSeg==5)
-	    {
-			status = H3BR7_NUMBER_IS_OUT_OF_RANGE;
-			Comma_flag=0;
-			return status;
-	    }
-
-
-
-		if(NumberF>max_value_comma || NumberF<min_value_comma)
-		{
-			status = H3BR7_NUMBER_IS_OUT_OF_RANGE;
-			Comma_flag=0;
-			return status;
-		}
-
-		if(NumberF < 0 )
-		{
-			signal = 1;
-			NumberF *= -1;
-		}
-
-		switch(Res){
-		   case 0:
-			   	Number_int=(uint32_t)NumberF;
-			   	Comma_flag=0;
-			    break;
-		   case 1:
-			    if(StartSevSeg == 5 ) Number_int=(uint32_t)NumberF;
-			    else Number_int=(uint32_t)(NumberF*10);
-			   break;
-		   case 2:
-			    if(StartSevSeg == 5 ) Number_int=(uint32_t)NumberF;
-			    else Number_int=(uint32_t)(NumberF*100);
-			   break;
-		   case 3:
-			    if(StartSevSeg == 5 ) Number_int=(uint32_t)NumberF;
-			    else Number_int=(uint32_t)(NumberF*1000);
-		   	   break;
-		   case 4:
-			    if(StartSevSeg == 5 ) Number_int=(uint32_t)NumberF;
-			    else Number_int=(uint32_t)(NumberF*10000);
-		   	   break;
-		   case 5:
-			    if(StartSevSeg == 5 ) Number_int=(uint32_t)NumberF;
-			    else Number_int=(uint32_t)(NumberF*100000);
-		   	   break;
-		   default:
-		   		break;
-
-
-		   }
-
-
-
-	   			if(Number_int>=0 && Number_int<=9)
-	   			{
-	   				length= 1;
-	   			}
-
-	   			if(Number_int>9 && Number_int<=99)
-	   			{
-	   				length= 2;
-	   			}
-
-	   			if(Number_int>99 && Number_int<=999)
-	   			{
-	   				length= 3;
-	   			}
-
-	   			if(Number_int>999 && Number_int<=9999)
-	   			{
-	   				length= 4;
-	   			}
-
-	   			if(Number_int>9999 && Number_int<=99999)
-	   			{
-	   				length= 5;
-	   			}
-
-	   			if(Number_int>99999 && Number_int<=999999)
-	   			{
-	   				length= 6;
-	   			}
-
-
-
-
-
-	   			if(zero_flag == 0) index_digit_last = length + StartSevSeg+1;
-	   			 else index_digit_last = Res + 2 + StartSevSeg;
-	   				if(signal==1)
-	   				{
-	   					Digit[index_digit_last] = Symbol_minus;
-	   					Digit[index_digit_last+1]=Empty;
-	   				}
-
-					Digit[StartSevSeg]=get_letter_code(Unit);
-
-	   				for(int i = StartSevSeg+1; i < 6;i++)
-	   					{
-	   						if(i == index_digit_last && signal == 1) continue;
-
-	   						Digit[i] = get_number_code(Number_int % 10);
-	   						Number_int /= 10;
-	   					}
-
-
-
-	   				for(int x=index_digit_last; x<6; x++)
-	   				{
-						if(signal==1 && x==index_digit_last)continue;
-						Digit[x]=Empty;
-					}
-
-
+	if(!(StartSevSeg >= 0 && StartSevSeg <= 5)){
+		status =H3BR7_ERR_WrongParams;
+		Comma_flag =0;
 
 		return status;
-
-}
-/* ----------------------------------------------------------------------------*/
-Module_Status SevenDisplayLetter(char letter, uint8_t StartSevSeg){
-	Module_Status status = H3BR7_OK;
-	clear_all_digits();   //Seven segment display off
-
-	if( !(StartSevSeg >= 0 && StartSevSeg <= 5) )
-		{
-		    status = H3BR7_ERR_WrongParams;
-		    return status;
-		 }
-
-	 Digit[StartSevSeg]=get_letter_code(letter);
-
-
-return status;
-
-
-}
-
-/* ----------------------------------------------------------------------------*/
-Module_Status SevenDisplaySentence(char *Sentence,uint16_t length,uint8_t StartSevSeg){
-	Module_Status status = H3BR7_OK;
-	clear_all_digits();   //Seven segment display off
-
-	uint16_t max_length;
-	char letter;
-
-	if(length == 0 || Sentence == NULL)
-	{
-		status = H3BR7_ERROR;
-		return status;
 	}
-
 
 	switch(StartSevSeg){
 		case 0:
-			max_length=6;
+			max_value_comma =99999.9;
+			min_value_comma =-9999.9;
 			break;
 		case 1:
-			max_length=5;
+			max_value_comma =9999.9;
+			min_value_comma =-999.9;
 			break;
 		case 2:
-			max_length=4;
+			max_value_comma =999.9;
+			min_value_comma =-99.9;
 			break;
 		case 3:
-			max_length=3;
+			max_value_comma =99.9;
+			min_value_comma =-9.9;
 			break;
 		case 4:
-			max_length=2;
+			max_value_comma =9.9;
+			min_value_comma =-9;
+			break;
+
 		case 5:
-			max_length=1;
+			max_value_comma =9;
+			min_value_comma =0;
+			break;
 		default:
 			break;
 
 	}
 
+	if(StartSevSeg == 4 && ((NumberF < 0 || NumberF > 9.9) || (NumberF > 0 || NumberF < 0.9))){
+		status =H3BR7_NUMBER_IS_OUT_OF_RANGE;
+		Comma_flag =0;
+		return status;
+	}
 
-		if(length>max_length)
-		{
-			status=H3BR7_Out_Of_Range;
-			return status;
+	if(StartSevSeg == 5 && (NumberF > 9 || NumberF < 0)){
+		status =H3BR7_NUMBER_IS_OUT_OF_RANGE;
+		Comma_flag =0;
+		return status;
+	}
+
+	if(NumberF > max_value_comma || NumberF < min_value_comma){
+		status =H3BR7_NUMBER_IS_OUT_OF_RANGE;
+		Comma_flag =0;
+		return status;
+	}
+
+	if(NumberF < 0){
+		signal =1;
+		NumberF *=-1;
+	}
+
+	switch(Res){
+		case 0:
+			Number_int =(uint32_t )NumberF;
+			Comma_flag =0;
+			break;
+		case 1:
+			if(StartSevSeg == 5)
+				Number_int =(uint32_t )NumberF;
+			else
+				Number_int =(uint32_t )(NumberF * 10);
+			break;
+		case 2:
+			if(StartSevSeg == 5)
+				Number_int =(uint32_t )NumberF;
+			else
+				Number_int =(uint32_t )(NumberF * 100);
+			break;
+		case 3:
+			if(StartSevSeg == 5)
+				Number_int =(uint32_t )NumberF;
+			else
+				Number_int =(uint32_t )(NumberF * 1000);
+			break;
+		case 4:
+			if(StartSevSeg == 5)
+				Number_int =(uint32_t )NumberF;
+			else
+				Number_int =(uint32_t )(NumberF * 10000);
+			break;
+		case 5:
+			if(StartSevSeg == 5)
+				Number_int =(uint32_t )NumberF;
+			else
+				Number_int =(uint32_t )(NumberF * 100000);
+			break;
+		default:
+			break;
+
+	}
+
+	if(Number_int > 0 && Number_int <= 9){
+		length =1;
+	}
+
+	if(Number_int > 9 && Number_int <= 99){
+		length =2;
+	}
+
+	if(Number_int > 99 && Number_int <= 999){
+		length =3;
+	}
+
+	if(Number_int > 999 && Number_int <= 9999){
+		length =4;
+	}
+
+	if(Number_int > 9999 && Number_int <= 99999){
+		length =5;
+	}
+
+	if(Number_int > 99999 && Number_int <= 999999){
+		length =6;
+	}
+
+	if(zero_flag == 0)
+		index_digit_last =length + StartSevSeg;
+	else
+		index_digit_last =Res + 1 + StartSevSeg;
+	if(signal == 1){
+		Digit[index_digit_last] =Symbol_minus;
+		Digit[index_digit_last + 1] =Empty;
+	}
+
+	for(int i =StartSevSeg; i < 6; i++){
+		if(i == index_digit_last && signal == 1)
+			continue;
+		Digit[i] =get_number_code(Number_int % 10);
+		Number_int /=10;
+	}
+
+	for(int x =index_digit_last; x < 6; x++){
+		if(signal == 1 && x == index_digit_last)
+			continue;
+		Digit[x] =Empty;
+	}
+
+	HAL_Delay(10);
+	return status;
+
+}
+
+
+/* ----------------------------------------------------------------------------*/
+Module_Status SevenDisplayQuantities(float NumberF,uint8_t Res,char Unit,uint8_t StartSevSeg){
+	Module_Status status =H3BR7_OK;
+	clear_all_digits();   //Seven segment display off
+
+	float max_value_comma;
+	float min_value_comma;
+	uint8_t index_digit_last;
+	uint8_t signal =0;
+	uint32_t Number_int;
+	uint8_t length;
+	uint8_t zero_flag =0;
+
+	Res_it =Res;
+	StartSevSeg_it =StartSevSeg + 1;
+	Comma_flag =1;
+
+	if((uint32_t )NumberF == 0)
+		zero_flag =1;
+
+	if(!(StartSevSeg >= 0 && StartSevSeg <= 5)){
+		status =H3BR7_ERR_WrongParams;
+		Comma_flag =0;
+		return status;
+	}
+
+	switch(StartSevSeg){
+		case 0:
+			max_value_comma =9999.9;
+			min_value_comma =-999.9;
+			break;
+		case 1:
+			max_value_comma =999.9;
+			min_value_comma =-99.9;
+			break;
+		case 2:
+			max_value_comma =99.9;
+			min_value_comma =-9.9;
+			break;
+		case 3:
+			max_value_comma =9.9;
+			min_value_comma =0.9;
+			break;
+		case 4:
+			max_value_comma =9;
+			min_value_comma =0;
+			break;
+
+		case 5:
+			// Case 5 is a special case.
+
+			break;
+		default:
+			break;
+
+	}
+
+	if(StartSevSeg == 5){
+		status =H3BR7_NUMBER_IS_OUT_OF_RANGE;
+		Comma_flag =0;
+		return status;
+	}
+
+	if(NumberF > max_value_comma || NumberF < min_value_comma){
+		status =H3BR7_NUMBER_IS_OUT_OF_RANGE;
+		Comma_flag =0;
+		return status;
+	}
+
+	if(NumberF < 0){
+		signal =1;
+		NumberF *=-1;
+	}
+
+	switch(Res){
+		case 0:
+			Number_int =(uint32_t )NumberF;
+			Comma_flag =0;
+			break;
+		case 1:
+			if(StartSevSeg == 5)
+				Number_int =(uint32_t )NumberF;
+			else
+				Number_int =(uint32_t )(NumberF * 10);
+			break;
+		case 2:
+			if(StartSevSeg == 5)
+				Number_int =(uint32_t )NumberF;
+			else
+				Number_int =(uint32_t )(NumberF * 100);
+			break;
+		case 3:
+			if(StartSevSeg == 5)
+				Number_int =(uint32_t )NumberF;
+			else
+				Number_int =(uint32_t )(NumberF * 1000);
+			break;
+		case 4:
+			if(StartSevSeg == 5)
+				Number_int =(uint32_t )NumberF;
+			else
+				Number_int =(uint32_t )(NumberF * 10000);
+			break;
+		case 5:
+			if(StartSevSeg == 5)
+				Number_int =(uint32_t )NumberF;
+			else
+				Number_int =(uint32_t )(NumberF * 100000);
+			break;
+		default:
+			break;
+
+	}
+
+	if(Number_int >= 0 && Number_int <= 9){
+		length =1;
+	}
+
+	if(Number_int > 9 && Number_int <= 99){
+		length =2;
+	}
+
+	if(Number_int > 99 && Number_int <= 999){
+		length =3;
+	}
+
+	if(Number_int > 999 && Number_int <= 9999){
+		length =4;
+	}
+
+	if(Number_int > 9999 && Number_int <= 99999){
+		length =5;
+	}
+
+	if(Number_int > 99999 && Number_int <= 999999){
+		length =6;
+	}
+
+	if(zero_flag == 0)
+		index_digit_last =length + StartSevSeg + 1;
+	else
+		index_digit_last =Res + 2 + StartSevSeg;
+	if(signal == 1){
+		Digit[index_digit_last] =Symbol_minus;
+		Digit[index_digit_last + 1] =Empty;
+	}
+
+	Digit[StartSevSeg] =get_letter_code(Unit);
+
+	for(int i =StartSevSeg + 1; i < 6; i++){
+		if(i == index_digit_last && signal == 1)
+			continue;
+
+		Digit[i] =get_number_code(Number_int % 10);
+		Number_int /=10;
+	}
+
+	for(int x =index_digit_last; x < 6; x++){
+		if(signal == 1 && x == index_digit_last)
+			continue;
+		Digit[x] =Empty;
+	}
+
+	HAL_Delay(10);
+
+	return status;
+
+}
+/* ----------------------------------------------------------------------------*/
+Module_Status SevenDisplayLetter(char letter,uint8_t StartSevSeg){
+	Module_Status status =H3BR7_OK;
+	clear_all_digits();   //Seven segment display off
+
+	if(!(StartSevSeg >= 0 && StartSevSeg <= 5)){
+		status =H3BR7_ERR_WrongParams;
+		return status;
+	}
+
+	Digit[StartSevSeg] =get_letter_code(letter);
+
+	HAL_Delay(10);
+	return status;
+
+}
+
+/* ----------------------------------------------------------------------------*/
+Module_Status SevenDisplaySentence(char *Sentence,uint16_t length,uint8_t StartSevSeg){
+	Module_Status status =H3BR7_OK;
+	clear_all_digits();   //Seven segment display off
+
+	uint16_t max_length;
+	char letter;
+
+	if(length == 0 || Sentence == NULL){
+		status =H3BR7_ERROR;
+		return status;
+	}
+
+	switch(StartSevSeg){
+		case 0:
+			max_length =6;
+			break;
+		case 1:
+			max_length =5;
+			break;
+		case 2:
+			max_length =4;
+			break;
+		case 3:
+			max_length =3;
+			break;
+		case 4:
+			max_length =2;
+		case 5:
+			max_length =1;
+		default:
+			break;
+
+	}
+
+	if(length > max_length){
+		status =H3BR7_Out_Of_Range;
+		return status;
+	}
+
+	for(int x =length - 1; x >= 0; x--){
+		letter =Sentence[x];
+
+		if((Sentence[x] >= 'a' && Sentence[x] <= 'z') || (Sentence[x] >= 'A' && Sentence[x] <= 'Z')){
+			Digit[StartSevSeg] =get_letter_code(letter);
 		}
 
-		for(int x=length - 1; x>=0; x--)
-		{
-			letter=Sentence[x];
-
-			if( (Sentence[x] >= 'a' && Sentence[x] <= 'z') ||
-					(Sentence[x] >= 'A' && Sentence[x] <= 'Z') )
-			{
-				Digit[StartSevSeg] = get_letter_code(letter);
-			}
-
-			else if(Sentence[x] >='0' && Sentence[x] <= '9')
-			{
-				Digit[StartSevSeg]  = get_number_code(letter - '0');
-			}
-			StartSevSeg++;
+		else if(Sentence[x] >= '0' && Sentence[x] <= '9'){
+			Digit[StartSevSeg] =get_number_code(letter - '0');
 		}
+		StartSevSeg++;
+	}
 
-
-
+	HAL_Delay(10);
 
 	return status;
 
@@ -1380,48 +1356,42 @@ Module_Status SevenDisplaySentence(char *Sentence,uint16_t length,uint8_t StartS
 /*-----------------------------------------------------------*/
 Module_Status SevenDisplayMovingSentence(char *Sentence,uint16_t length){
 
-	Module_Status status = H3BR7_OK;
+	Module_Status status =H3BR7_OK;
 	clear_all_digits();   //Seven segment display off
 
-	if(length == 0 || Sentence == NULL)
-	{
-		status = H3BR7_ERROR;
+	if(length == 0 || Sentence == NULL){
+		status =H3BR7_ERROR;
 		return status;
 	}
 
-	if(length <= MOVING_SENTENCE_MAX_LENGTH)
-	{
-		Moving_sentence_index = 0;		Moving_sentence_flag = 1;
-		Moving_sentence_length = length + 6;
+	if(length <= MOVING_SENTENCE_MAX_LENGTH){
+		Moving_sentence_index =0;
+		Moving_sentence_flag =1;
+		Moving_sentence_length =length + 6;
 
-		for(int i=0;i<6;i++) Moving_sentence_buffer[i] = Empty;
+		for(int i =0; i < 6; i++)
+			Moving_sentence_buffer[i] =Empty;
 
-		for(int i=0;i<length;i++)
-		{
-			if( (Sentence[i] >= 'a' && Sentence[i] <= 'z') ||
-					(Sentence[i] >= 'A' && Sentence[i] <= 'Z') )
-			{
-				Moving_sentence_buffer[i+6] = get_letter_code(Sentence[i]);
+		for(int i =0; i < length; i++){
+			if((Sentence[i] >= 'a' && Sentence[i] <= 'z') || (Sentence[i] >= 'A' && Sentence[i] <= 'Z')){
+				Moving_sentence_buffer[i + 6] =get_letter_code(Sentence[i]);
 			}
 
-			else if(Sentence[i] >='0' && Sentence[i] <= '9')
-			{
-				Moving_sentence_buffer[i+6] = get_number_code(Sentence[i] - '0');
+			else if(Sentence[i] >= '0' && Sentence[i] <= '9'){
+				Moving_sentence_buffer[i + 6] =get_number_code(Sentence[i] - '0');
 			}
 
-			else
-			{
-				Moving_sentence_buffer[i+6] = Empty;
+			else{
+				Moving_sentence_buffer[i + 6] =Empty;
 			}
 		}
 	}
 
-	else
-	{
-		status = H3BR7_Out_Of_Range;
+	else{
+		status =H3BR7_Out_Of_Range;
 		return status;
 	}
-
+	HAL_Delay(10);
 	return status;
 
 }
