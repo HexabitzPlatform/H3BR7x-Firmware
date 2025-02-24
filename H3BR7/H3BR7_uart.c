@@ -11,11 +11,11 @@
 #include "BOS.h"
 
 /*  */
-//#ifndef __N
-//uint16_t arrayPortsDir[MaxNumOfModules]; /* Array ports directions */
-//#else
-//uint16_t arrayPortsDir[__N ];
-//#endif
+#ifndef __N
+uint16_t arrayPortsDir[MaxNumOfModules]; /* Array ports directions */
+#else
+uint16_t arrayPortsDir[__N ];
+#endif
 
 DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart2_rx;
@@ -218,7 +218,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart){
 		hdma_usart1_rx.Init.Priority = DMA_PRIORITY_LOW;
 
 
-		msgRxDMA[(GetPort(huart)-1)] = &hdma_usart1_rx;
+		UARTDMAHandler[(GetPort(huart)-1)] = &hdma_usart1_rx;
 
 
 		HAL_DMA_Init(&hdma_usart1_rx);
@@ -271,7 +271,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart){
 		hdma_usart2_rx.Init.Priority = DMA_PRIORITY_LOW;
 
 
-		msgRxDMA[(GetPort(huart)-1)] = &hdma_usart2_rx;
+		UARTDMAHandler[(GetPort(huart)-1)] = &hdma_usart2_rx;
 
 
 		HAL_DMA_Init(&hdma_usart2_rx);
@@ -324,7 +324,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart){
 		hdma_usart3_rx.Init.Priority = DMA_PRIORITY_LOW;
 
 
-		msgRxDMA[(GetPort(huart)-1)] = &hdma_usart3_rx;
+		UARTDMAHandler[(GetPort(huart)-1)] = &hdma_usart3_rx;
 
 
 		HAL_DMA_Init(&hdma_usart3_rx);
@@ -399,7 +399,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart){
 		hdma_usart5_rx.Init.Priority = DMA_PRIORITY_LOW;
 
 
-		msgRxDMA[(GetPort(huart)-1)] = &hdma_usart5_rx;
+		UARTDMAHandler[(GetPort(huart)-1)] = &hdma_usart5_rx;
 
 
 		HAL_DMA_Init(&hdma_usart5_rx);
@@ -446,7 +446,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart){
 		hdma_usart6_rx.Init.Priority = DMA_PRIORITY_LOW;
 
 
-		msgRxDMA[(GetPort(huart)-1)] = &hdma_usart6_rx;
+		UARTDMAHandler[(GetPort(huart)-1)] = &hdma_usart6_rx;
 
 
 		HAL_DMA_Init(&hdma_usart6_rx);
