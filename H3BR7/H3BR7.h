@@ -25,41 +25,36 @@
 #include "H3BR7_dma.h"
 #include "H3BR7_inputs.h"
 #include "H3BR7_eeprom.h"
-/* Exported definitions -------------------------------------------------------*/
 
-#define	modulePN		_H3BR7
+/* Exported Macros *********************************************************/
+#define	MODULE_PN		_H3BR6
 
-
-/* Port-related definitions */
-#define	NumOfPorts			5
-
-#define P_PROG 				P2						/* ST factory bootloader UART */
+/* Port-related Definitions */
+#define	NUM_OF_PORTS	5
+#define P_PROG 			P2		/* ST factory bootloader UART */
 
 /* Define available ports */
-#define _P1 
-#define _P2 
-#define _P3 
-#define _P4 
-#define _P5 
+#define _P1
+#define _P2
+#define _P3
+#define _P4
+#define _P5
 
-
-/* Define available USARTs */
-#define _Usart1 1
-#define _Usart2 1
-#define _Usart3 1
-#define _Usart5 1
-#define _Usart6	1
-
+/* Define Available USARTs */
+#define _USART1
+#define _USART2
+#define _USART3
+#define _USART5
+#define _USART6
 
 /* Port-UART mapping */
+#define UART_P1 &huart6
+#define UART_P2 &huart2
+#define UART_P3 &huart3
+#define UART_P4 &huart1
+#define UART_P5 &huart5
 
-#define P1uart &huart6
-#define P2uart &huart2
-#define P3uart &huart3
-#define P4uart &huart1
-#define P5uart &huart5
-
-
+/* Module-specific Hardware Definitions ************************************/
 /* Port Definitions */
 #define	USART1_TX_PIN		GPIO_PIN_9
 #define	USART1_RX_PIN		GPIO_PIN_10
@@ -79,8 +74,6 @@
 #define	USART3_RX_PORT		GPIOB
 #define	USART3_AF			GPIO_AF4_USART3
 
-
-
 #define	USART5_TX_PIN		GPIO_PIN_3
 #define	USART5_RX_PIN		GPIO_PIN_2
 #define	USART5_TX_PORT		GPIOD
@@ -93,12 +86,8 @@
 #define	USART6_RX_PORT		GPIOB
 #define	USART6_AF			GPIO_AF8_USART6
 
-/* Module-specific Definitions */
-
-#define NUM_MODULE_PARAMS						1
-
-
-/*  Pins For SevenSegment*/
+/* Module-specific Hardware Definitions */
+/* Pins For Seven Segment*/
 #define Seven_seg_a_Pin 				GPIO_PIN_4
 #define Seven_seg_a_GPIO_Port 			GPIOA
 
@@ -123,7 +112,7 @@
 #define Seven_seg_DP_Pin 				GPIO_PIN_12
 #define Seven_seg_DP_GPIO_Port 			GPIOB
 
-/* Enable Pin For SevenSegment*/
+/* Enable Pin For Seven Segment*/
 #define Seven_seg_Enable_1_Pin 			GPIO_PIN_0
 #define Seven_seg_Enable_1_GPIO_Port 	GPIOA
 
@@ -141,8 +130,8 @@
 
 #define Seven_seg_Enable_6_Pin 			GPIO_PIN_0
 #define Seven_seg_Enable_6_GPIO_Port 	GPIOD
-/*  Pins For LEDs Indicator */
 
+/*  Pins For LEDs Indicator */
 #define Led_Indicator1_Pin 			    GPIO_PIN_5
 #define Led_Indicator1_GPIO_Port 	    GPIOB
 
@@ -155,12 +144,55 @@
 #define Led_Indicator4_Pin 			    GPIO_PIN_13
 #define Led_Indicator4_GPIO_Port 	    GPIOB
 
-/* Module EEPROM Variables */
+/* Indicator LED */
+#define _IND_LED_PORT			        GPIOB
+#define _IND_LED_PIN		        	GPIO_PIN_7
 
-// Module Addressing Space 500 - 599
-#define _EE_MODULE							500		
+/* Module-specific Macro Definitions ***************************************/
+#define NUM_MODULE_PARAMS				 1
+#define MOVING_SENTENCE_MAX_LENGTH       100
+#define MOVING_SENTENCE_COUNTER_OVERFLOW 95 /* moving time: 300 ms (500 / 3.145) */
 
-//* Module_Status Type Definition */
+
+/* Module-specific Type Definition *****************************************/
+/* Numbers / Letters Representations Type Definition */
+typedef enum {
+	Empty =0x00,
+
+	/* Numbers Representation*/
+	ZERO_NUMBER =0X3F, ONE_NUMBER =0X06, TWO_NUMBER =0X5B, THREE_NUMBER =0X4F, FOUR_NUMBER =0X66,
+	FIVE_NUMBER =0X6D, SIX_NUMBER =0X7D, SEVEN_NUMBER =0X07, EIGHT_NUMBER =0X7F, NINE_NUMBER =0X6F,
+
+	/* Small Letter Representation*/
+	a_LETTER =0X5F, b_LETTER =0X7C, c_LETTER =0X58, d_LETTER =0X5E, e_LETTER =0X79, f_LETTER =0X71,
+	g_LETTER =0X6F, h_LETTER =0X74, i_LETTER =0X10, j_LETTER =0X1E, k_LETTER =0X75, l_LETTER =0X38,
+	m_LETTER =0X37, n_LETTER =0X54, o_LETTER =0X5C, p_LETTER =0X73, q_LETTER =0X67, r_LETTER =0X50,
+	s_LETTER =0X6C, t_LETTER =0X78, u_LETTER =0X1C, v_LETTER =0X3E, w_LETTER =0X7E, x_LETTER =0X76,
+	y_LETTER =0X6E, z_LETTER =0X1B,
+
+	/* Capital Letter Representation*/
+	A_LETTER =0X77, B_LETTER =0X7C, C_LETTER =0X39, D_LETTER =0X5E, E_LETTER =0X79, F_LETTER =0X71,
+	G_LETTER =0X3D, H_LETTER =0X74, I_LETTER =0X10, J_LETTER =0X1E, K_LETTER =0X75, L_LETTER =0X38,
+	M_LETTER =0X37, N_LETTER =0X54, O_LETTER =0X5C, P_LETTER =0X73, Q_LETTER =0X67, R_LETTER =0X50,
+	S_LETTER =0X6C, T_LETTER =0X78, U_LETTER =0X1C, V_LETTER =0X3E, W_LETTER =0X7E, X_LETTER =0X76,
+	Y_LETTER =0X6E, Z_LETTER =0X1B,
+
+	SYMBOL_MINUS =0X40
+
+} SegmentCodes;
+
+/* Led Indicator Type Definition */
+typedef enum{
+	INDICATOR_1=1,
+	INDICATOR_2,
+	INDICATOR_3,
+	INDICATOR_4,
+
+	OFF_LED=0x00,
+	ON_LED=0xFF
+} IndicatorLED;
+
+/* Module-status Type Definition */
 typedef enum {
 	H3BR7_OK =0,
 	H3BR7_ERR_UnknownMessage,
@@ -169,62 +201,6 @@ typedef enum {
 	H3BR7_Out_Of_Range,
 	H3BR7_ERROR =255
 } Module_Status;
-
-
-typedef enum{
-	zero_number=0x3f, one_number=0x06, two_number=0x5b, three_number=0x4f, four_number=0x66, five_number=0x6d, six_number=0x7d, seven_number=0x07, eight_number=0x7f ,nine_number=0x6f,
-
-	a_letter=0x5f, b_letter=0x7C, c_letter=0x58, d_letter=0x5E, e_letter=0x79, f_letter=0x71, g_letter=0x6f, h_letter=0x74, i_letter=0x10, j_letter=0x1E,k_letter=0x75,
-
-	l_letter=0x38  , m_letter=0x37,n_letter=0x54, o_letter=0x5C, p_letter=0x73, q_letter=0x67, r_letter=0x50, s_letter=0x6c, t_letter=0x78, u_letter=0x1c,
-
-	v_letter=0x3e, w_letter=0x7e ,x_letter=0x76,y_letter=0x6E, z_letter=0x1B,
-
-	A_letter=0x77, B_letter=0x7C , C_letter=0x39 , D_letter=0x5E, E_letter=0x79 , F_letter=0x71 , G_letter=0x3d , H_letter=0x74, I_letter=0x10 , J_letter=0x1E ,K_letter=0x75,
-
-	L_letter=0x38  , M_letter=0x37,N_letter=0x54 , O_letter=0x5C , P_letter=0x73 ,  Q_letter=0x67 , R_letter=0x50,  S_letter=0x6c  ,T_letter=0x78, U_letter=0x1c,
-
-	V_letter=0x3e ,W_letter=0x7e , X_letter=0x76 ,Y_letter=0x6E , Z_letter=0x1B  ,
-
-	Empty = 0x00,
-
-	Symbol_minus=0x40
-
-} Segment_Codes;
-
-typedef enum{
-	Ind1=1,
-	Ind2,
-	Ind3,
-	Ind4,
-} IndicatorLED;
-
-/* -------------------------------------------------------------------------------*\
- */
-extern uint8_t Res_it;
-extern uint8_t StartSevSeg_it;
-extern int Comma_flag;
-
-
-#define MOVING_SENTENCE_MAX_LENGTH 100
-#define MOVING_SENTENCE_COUNTER_OVERFLOW 95 // moving time: 300 ms (500 / 3.145)
-
-extern uint8_t  Moving_sentence_buffer[MOVING_SENTENCE_MAX_LENGTH + 6];
-extern uint8_t  Moving_sentence_length;
-extern uint8_t  Moving_sentence_flag;
-extern uint32_t Moving_sentence_counter;
-extern uint8_t  Moving_sentence_index;
-
-
-
-extern Segment_Codes Digit[7]; //Digit[0]: LSD, Digit[5]: MSD
-extern Segment_Codes get_number_code(uint8_t digit);
-extern Segment_Codes get_letter_code(char letter);
-extern Segment_Codes clear_all_digits(void);
-
-/* Indicator LED */
-#define _IND_LED_PORT			GPIOB
-#define _IND_LED_PIN			GPIO_PIN_7
 
 /* Export UART variables */
 extern UART_HandleTypeDef huart1;
@@ -240,39 +216,23 @@ extern void MX_USART3_UART_Init(void);
 extern void MX_USART5_UART_Init(void);
 extern void MX_USART6_UART_Init(void);
 extern void SystemClock_Config(void);
-extern void ExecuteMonitor(void);
 
-/* -----------------------------------------------------------------------
- |								  APIs							          |  																 	|
-/* -----------------------------------------------------------------------
- */
-extern Module_Status SevenDisplayNumber(int32_t Number, uint8_t StartSevSeg);
-extern Module_Status SevenDisplayNumberF(float NumberF,uint8_t Res,uint8_t StartSevSeg);
-extern Module_Status SevenDisplayQuantities(float NumberF, uint8_t Res,char Unit ,uint8_t StartSevSeg);
-extern Module_Status SevenDisplayLetter(char letter , uint8_t StartSevSeg);
-extern Module_Status SevenDisplaySentence(char *Sentance,uint16_t length,uint8_t StartSevSeg);
-extern Module_Status SevenDisplayMovingSentence(char *Sentance,uint16_t length);
-extern Module_Status SevenDisplayOff(void);
-extern Module_Status SetIndicator(IndicatorLED indicator );
-extern Module_Status ClearIndicator(IndicatorLED  indicator);
+/***************************************************************************/
+/***************************** General Functions ***************************/
+/***************************************************************************/
+Module_Status SevenDisplayNumber(int32_t Number, uint8_t StartSevSeg);
+Module_Status SevenDisplayNumberF(float NumberF,uint8_t Res,uint8_t StartSevSeg);
+Module_Status SevenDisplayQuantities(float NumberF, uint8_t Res,char Unit ,uint8_t StartSevSeg);
+Module_Status SevenDisplayLetter(char letter , uint8_t StartSevSeg);
+Module_Status SevenDisplaySentence(char *Sentance,uint16_t length,uint8_t StartSevSeg);
+Module_Status SevenDisplayMovingSentence(char *Sentance,uint16_t length);
+Module_Status SevenDisplayOff(void);
+Module_Status SetIndicator(IndicatorLED indicator );
+Module_Status ClearIndicator(IndicatorLED  indicator);
 
 void SetupPortForRemoteBootloaderUpdate(uint8_t port);
-void remoteBootloaderUpdate(uint8_t src,uint8_t dst,uint8_t inport,uint8_t outport);
+void RemoteBootloaderUpdate(uint8_t src,uint8_t dst,uint8_t inport,uint8_t outport);
 
-/* -----------------------------------------------------------------------
- |								Commands							      |															 	|
-/* -----------------------------------------------------------------------
- */
-extern const CLI_Command_Definition_t CLI_SevenDisplayNumberCommandCommandDefinition;
-extern const CLI_Command_Definition_t CLI_SevenDisplayNumberFCommandDefinition;
-extern const CLI_Command_Definition_t CLI_SevenDisplayQuantitiesCommandDefinition;
-extern const CLI_Command_Definition_t CLI_SevenDisplayLetterCommandDefinition;
-extern const CLI_Command_Definition_t CLI_SevenDisplaySentanceCommandDefinition;
-extern const CLI_Command_Definition_t CLI_SevenDisplayMovingSentanceCommandDefinition;
-extern const CLI_Command_Definition_t CLI_SevenDisplayOffCommandDefinition;
+#endif /* H3BR6_H */
 
-
-
-#endif /* H3BR7_H */
-
-/************************ (C) COPYRIGHT HEXABITZ *****END OF FILE****/
+/***************** (C) COPYRIGHT HEXABITZ ***** END OF FILE ****************/
