@@ -86,7 +86,6 @@
 #define	USART6_RX_PORT		GPIOB
 #define	USART6_AF			GPIO_AF8_USART6
 
-/* Module-specific Hardware Definitions */
 /* Pins For Seven Segment*/
 #define SEVEN_SEG_A_PIN 				GPIO_PIN_4
 #define SEVEN_SEG_A_GPIO_PORT 			GPIOA
@@ -229,9 +228,6 @@ Module_Status SevenDisplayMovingSentence(char *Sentance,uint16_t length);
 Module_Status SevenDisplayOff(void);
 Module_Status SetIndicator(IndicatorLED indicator );
 Module_Status ClearIndicator(IndicatorLED  indicator);
-
-void SetupPortForRemoteBootloaderUpdate(uint8_t port);
-void RemoteBootloaderUpdate(uint8_t src,uint8_t dst,uint8_t inport,uint8_t outport);
 
 #endif /* H3BR6_H */
 
