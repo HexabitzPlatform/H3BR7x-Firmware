@@ -2,10 +2,11 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H3BR7_eeprom.c
- Description   : EEPROM emulator library (Source file).
-
- */
+ File Name  : H3BR7_eeprom.c
+ Description: Implements EEPROM emulation using flash memory.
+ EEPROM: Manages 1000 8-byte elements across 4 flash pages with backup group.
+ Operations: Initialize, read/write variables, format, and erase sectors.
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

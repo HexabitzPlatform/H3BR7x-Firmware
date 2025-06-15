@@ -1,11 +1,11 @@
 /*
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
- 
- File Name     : H3BR7_MemoryMap.h
- Description   : Module MCU memory map header file.
 
- */
+ File Name  : H3BR7_MemoryMap.h
+ Description: Defines MCU memory map for module operation.
+ Memory: Allocates 512 KB for application, topology (2 KB), snippets (2 KB), and EEPROM emulation (8 KB).
+*/
 
 /* Define to prevent recursive inclusion************************************/
 #ifndef H0BR4_MEMORYMAP_H

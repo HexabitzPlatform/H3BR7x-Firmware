@@ -2,10 +2,11 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H3BR7_it.c
- Description   :Interrupt Service Routines.
-
- */
+ File Name  : H3BR7_it.c
+ Description: Implements interrupt service routines for module operation.
+ Interrupts: Handles SysTick, HardFault, UART (USART1-6), DMA (Channels 1-6), and timer (TIM6).
+ Callbacks: Manages UART RX/TX, errors, wake-up, and stack/heap overflow.
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

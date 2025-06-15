@@ -2,9 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H3BR7_inputs.h
- Description   : header file for Bitz digital and analog inputs.
- 
+ File Name  : H3BR7_inputs.h
+ Description: Declares functions and macros for digital and analog inputs.
+ Inputs: Supports buttons (momentary/on-off, NO/NC) and ADC channels (P2, P3).
+ ADC: Defines pins, ports, and channels for voltage, temperature, and Vref readings.
 */
 
 /* Includes ****************************************************************/

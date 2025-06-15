@@ -2,10 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H3BR7_gpio.c
- Description   : Source code provides code for the configuration of all used GPIO pins .
-
- */
+ File Name  : H3BR7_gpio.c
+ Description: Implements GPIO configuration for module operation.
+ GPIO: Initializes pins for UART, indicator LED, seven-segment display, and checks factory reset condition.
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

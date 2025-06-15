@@ -2,10 +2,11 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H3BR7_rtc.c
- Description   : Peripheral RTC setup source file.
-
- */
+ File Name  : H3BR7_rtc.c
+ Description: Implements real-time clock (RTC) setup and configuration.
+ RTC: Initializes internal RTC, configures calendar, and manages time/date settings.
+ Features: Supports 12/24-hour formats, backup registers, and boot status detection.
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

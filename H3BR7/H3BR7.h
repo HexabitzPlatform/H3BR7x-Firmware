@@ -1,17 +1,13 @@
 /*
- BitzOS (BOS) V0.3.6 - Copyright (C) 2017-2024 Hexabitz
+ BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
- 
- File Name     : H3BR7.h
- Description   : Header file for module H3BR7.
- 	 	 	 	 (Description_of_module)
 
-(Description of Special module peripheral configuration):
->>
->>
->>
-
- */
+ File Name  : H3BR7.h
+ Description: Header file for H3BR7 module.
+ Peripherals: Defines USART1,2,3,5,6 for ports (P1-P5), TIM6 for 7-segment display.
+ Features: Declares functions for 7-segment display (numbers, floats, quantities, letters, sentences, moving sentences),
+           indicator LED control, and module-specific configurations (GPIO, DMA, EEPROM).
+*/
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef H3BR7_H

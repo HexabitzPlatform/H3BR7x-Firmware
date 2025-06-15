@@ -2,10 +2,11 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H3BR6_uart.c
- Description   : Source Code provides configuration for USART instances.
-
- */
+ File Name  : H3BR6_uart.c
+ Description: Implements UART configuration for USART1-6.
+ UART: Initializes ports (P1-P6) with DMA, supports baudrate updates, pin swapping (normal/reversed).
+ Features: Polling/interrupt-based read/write with mutex protection, port direction management.
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

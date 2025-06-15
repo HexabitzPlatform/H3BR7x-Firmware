@@ -2,11 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H3BR7_gpio.h
- Description   : Header file contains all the functions prototypes for
- the GPIO .
-
- */
+ File Name  : H3BR7_gpio.h
+ Description: Declares functions for GPIO configuration.
+ GPIO: Configures pins for UART, indicator LED, seven-segment display, and factory reset detection.
+*/
 
 
 /* Define to prevent recursive inclusion ***********************************/

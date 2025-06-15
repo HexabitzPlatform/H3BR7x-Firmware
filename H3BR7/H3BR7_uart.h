@@ -2,9 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H3BR7_uart.h
- Description   : Header file provides configuration for USART instances.
- */
+ File Name  : H3BR6_uart.h
+ Description: Declares functions for UART configuration and operations.
+ UART: Supports USART1-6 for ports (P1-P6), read/write with mutex, baudrate updates, and pin swapping.
+*/
 
 /* Define to prevent recursive inclusion ***********************************/
 #ifndef __usart_H

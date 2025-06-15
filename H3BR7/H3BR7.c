@@ -2,16 +2,12 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H3BR7.c
- Description   : Source code for module H3BR7.
- 	 	 	 	 (Description_of_module)
-
-(Description of Special module peripheral configuration):
->>USARTs 1,2,3,5 for module ports.
->>Timer6 for Seven Segment
->>
-
- */
+ File Name  : H3BR7.c
+ Description: Main source code for H3BR7 module, controlling a 6-digit 7-segment display and indicator LEDs.
+ Peripherals: Configures USART1,2,3,5,6 for module ports (P1-P5), TIM6 for 7-segment multiplexing.
+ Features: Displays integers, floating-point numbers, quantities with units, letters, sentences, and moving sentences on 7-segment.
+           Supports 4 indicator LEDs, CLI commands, remote bootloader updates, and power modes (stop/standby).
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"
