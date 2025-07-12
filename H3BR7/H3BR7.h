@@ -23,7 +23,7 @@
 #include "H3BR7_eeprom.h"
 
 /* Exported Macros *********************************************************/
-#define	MODULE_PN		_H3BR6
+#define	MODULE_PN		_H3BR7
 
 /* Port-related Definitions */
 #define	NUM_OF_PORTS	5
