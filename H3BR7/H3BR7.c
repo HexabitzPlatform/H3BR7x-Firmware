@@ -33,7 +33,7 @@ ModuleParam_t ModuleParam[NUM_MODULE_PARAMS] ={0};
 
 /* Private variables ---------------------------------------------------------*/
 uint8_t CommaIndex;     /* A global variable to specify the index of the comma */
-uint8_t StartSevSeg;
+uint8_t StartSevSegIndex;
 uint8_t SevenSegIndex = 0;
 uint8_t MovingSentenceFlag = 0;
 uint8_t MovingSentenceIndex = 0;
@@ -735,7 +735,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		HAL_GPIO_WritePin(SEVEN_SEG_G_GPIO_PORT,SEVEN_SEG_G_PIN,Digit[SevenSegIndex] & 0b01000000);
 		HAL_GPIO_WritePin(SEVEN_SEG_DP_GPIO_PORT,SEVEN_SEG_DP_PIN,0);
 
-		if(SevenSegIndex == StartSevSeg + CommaIndex && CommaFlag == 1){
+		if(SevenSegIndex == StartSevSegIndex + CommaIndex && CommaFlag == 1){
 			HAL_GPIO_WritePin(SEVEN_SEG_DP_GPIO_PORT,SEVEN_SEG_DP_PIN,1);
 		}
 
@@ -1226,7 +1226,7 @@ Module_Status SevenDisplayNumberF(float NumberF,uint8_t Res,uint8_t StartSevSeg)
 	uint8_t zero_flag =0;
 
 	CommaIndex =Res;
-	StartSevSeg =StartSevSeg;
+	StartSevSegIndex =StartSevSeg;
 	CommaFlag =1;
 
 	if((uint32_t )NumberF == 0)
@@ -1408,7 +1408,7 @@ Module_Status SevenDisplayQuantities(float NumberF,uint8_t Res,char Unit,uint8_t
 	uint8_t zero_flag =0;
 
 	CommaIndex =Res;
-	StartSevSeg =StartSevSeg + 1;
+	StartSevSegIndex =StartSevSeg + 1;
 	CommaFlag =1;
 
 	if((uint32_t )NumberF == 0)
