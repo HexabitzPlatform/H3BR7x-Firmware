@@ -576,47 +576,34 @@ Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_
     IndicatorLED indicator;
 
 	switch(code){
-	  case CODE_H3BRX_SEVEN_DISPLAY_NUMBER:
+	  case CODE_H3BRX_DISPLAY_NUMBER:
 	  Number=((int32_t )cMessage[port - 1][shift] ) + ((int32_t )cMessage[port - 1][1 + shift] << 8) + ((int32_t )cMessage[port - 1][2 + shift] << 16) + ((int32_t )cMessage[port - 1][3 + shift] << 24);
-	  StartSevSeg=(uint8_t)cMessage[port - 1][4+shift];
-//	  SevenDisplayNumber(Number, StartSevSeg);
+	  Res=(uint8_t)cMessage[port - 1][4+shift];
+	  StartSevSeg=(uint8_t)cMessage[port - 1][5+shift];
+	  DisplayNumber(Number,Res, StartSevSeg);
 	  break;
 
-	  case CODE_H3BRX_SEVEN_DISPLAY_NUMBER_F:
-		  Number_int=((uint32_t) cMessage[port - 1][shift] + (uint32_t) (cMessage[port - 1][1+shift] <<8) + (uint32_t) (cMessage[port - 1][2+shift]<<16) + (uint32_t) (cMessage[port - 1][3+shift] <<24));
-		  NumberF = *((float*)&Number_int);
-		  Res=(uint8_t)cMessage[port - 1][4+shift];
-		  StartSevSeg=(uint8_t)cMessage[port - 1][5+shift];
-//		  SevenDisplayNumberF(NumberF, Res, StartSevSeg);
-		  break;
+	  case CODE_H3BRX_DISPLAY_QUANTITIES:
+	  Number=((int32_t )cMessage[port - 1][shift] ) + ((int32_t )cMessage[port - 1][1 + shift] << 8) + ((int32_t )cMessage[port - 1][2 + shift] << 16) + ((int32_t )cMessage[port - 1][3 + shift] << 24);
+	  Res=(uint8_t)cMessage[port - 1][4+shift];
+	  Unit=(uint8_t)cMessage[port - 1][5+shift];
+	  StartSevSeg=(uint8_t)cMessage[port - 1][6+shift];
+	  DisplayQuantities(Number,Res,Unit, StartSevSeg);
+	  break;
 
-	  case CODE_H3BRX_SEVEN_DISPLAY_QUANTITIES:
-		  Number_int=((uint32_t) cMessage[port - 1][shift] + (uint32_t) (cMessage[port - 1][1+shift] <<8) + (uint32_t) (cMessage[port - 1][2+shift]<<16) + (uint32_t) (cMessage[port - 1][3+shift] <<24));
-		  NumberF = *((float*)&Number_int);
-		  Res=(uint8_t)cMessage[port - 1][4+shift];
-		  Unit=(uint8_t)cMessage[port - 1][5+shift];
-    	  StartSevSeg=(uint8_t)cMessage[port - 1][6+shift];
-//    	  SevenDisplayQuantities(NumberF, Res, Unit, StartSevSeg);
-		  break;
-
-	  case CODE_H3BRX_SEVEN_DISPLAY_LETTER:
-//		  StartSevSeg=(uint8_t)cMessage[port - 1][1+shift];
-//		  SevenDisplayLetter((char)cMessage[port-1][shift], StartSevSeg);
-		  break;
-
-	  case CODE_H3BRX_SEVEN_DISPLAY_SENTENCE:
+	  case CODE_H3BRX_DISPLAY_SENTENCE:
 		  length=(uint8_t)cMessage[port - 1][shift];
 		  StartSevSeg=(uint8_t)cMessage[port - 1][1+shift];
-//		  SevenDisplaySentence((char *)&cMessage[port-1][2 + shift], length, StartSevSeg);
+		  DisplaySentence((char *)&cMessage[port-1][2 + shift], length, StartSevSeg);
 		  break;
 
-	  case CODE_H3BRX_SEVEN_DISPLAY_MOVING_SENTENCE:
+	  case CODE_H3BRX_DISPLAY_MOVING_SENTENCE:
 		  length=(uint8_t)cMessage[port - 1][shift];
-//		  SevenDisplayMovingSentence((char *)&cMessage[port-1][1 + shift], length);
+		  DisplayMovingSentence((char *)&cMessage[port-1][1 + shift], length);
 		  break;
 
-	  case CODE_H3BRX_SEVEN_DISPLAY_OFF:
-//		  SevenDisplayOff();
+	  case CODE_H3BRX_DISPLAY_OFF:
+		  DisplayOff();
 		  break;
 
 	  case CODE_H3BRX_SET_INDICATOR:
