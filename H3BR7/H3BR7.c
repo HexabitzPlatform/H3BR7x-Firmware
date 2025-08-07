@@ -601,7 +601,7 @@ Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_
 	  case CODE_H3BRX_SEVEN_DISPLAY_NUMBER:
 	  Number=((int32_t )cMessage[port - 1][shift] ) + ((int32_t )cMessage[port - 1][1 + shift] << 8) + ((int32_t )cMessage[port - 1][2 + shift] << 16) + ((int32_t )cMessage[port - 1][3 + shift] << 24);
 	  StartSevSeg=(uint8_t)cMessage[port - 1][4+shift];
-	  SevenDisplayNumber(Number, StartSevSeg);
+//	  SevenDisplayNumber(Number, StartSevSeg);
 	  break;
 
 	  case CODE_H3BRX_SEVEN_DISPLAY_NUMBER_F:
@@ -609,7 +609,7 @@ Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_
 		  NumberF = *((float*)&Number_int);
 		  Res=(uint8_t)cMessage[port - 1][4+shift];
 		  StartSevSeg=(uint8_t)cMessage[port - 1][5+shift];
-		  SevenDisplayNumberF(NumberF, Res, StartSevSeg);
+//		  SevenDisplayNumberF(NumberF, Res, StartSevSeg);
 		  break;
 
 	  case CODE_H3BRX_SEVEN_DISPLAY_QUANTITIES:
@@ -618,27 +618,27 @@ Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_
 		  Res=(uint8_t)cMessage[port - 1][4+shift];
 		  Unit=(uint8_t)cMessage[port - 1][5+shift];
     	  StartSevSeg=(uint8_t)cMessage[port - 1][6+shift];
-    	  SevenDisplayQuantities(NumberF, Res, Unit, StartSevSeg);
+//    	  SevenDisplayQuantities(NumberF, Res, Unit, StartSevSeg);
 		  break;
 
 	  case CODE_H3BRX_SEVEN_DISPLAY_LETTER:
-		  StartSevSeg=(uint8_t)cMessage[port - 1][1+shift];
-		  SevenDisplayLetter((char)cMessage[port-1][shift], StartSevSeg);
+//		  StartSevSeg=(uint8_t)cMessage[port - 1][1+shift];
+//		  SevenDisplayLetter((char)cMessage[port-1][shift], StartSevSeg);
 		  break;
 
 	  case CODE_H3BRX_SEVEN_DISPLAY_SENTENCE:
 		  length=(uint8_t)cMessage[port - 1][shift];
 		  StartSevSeg=(uint8_t)cMessage[port - 1][1+shift];
-		  SevenDisplaySentence((char *)&cMessage[port-1][2 + shift], length, StartSevSeg);
+//		  SevenDisplaySentence((char *)&cMessage[port-1][2 + shift], length, StartSevSeg);
 		  break;
 
 	  case CODE_H3BRX_SEVEN_DISPLAY_MOVING_SENTENCE:
 		  length=(uint8_t)cMessage[port - 1][shift];
-		  SevenDisplayMovingSentence((char *)&cMessage[port-1][1 + shift], length);
+//		  SevenDisplayMovingSentence((char *)&cMessage[port-1][1 + shift], length);
 		  break;
 
 	  case CODE_H3BRX_SEVEN_DISPLAY_OFF:
-		  SevenDisplayOff();
+//		  SevenDisplayOff();
 		  break;
 
 	  case CODE_H3BRX_SET_INDICATOR:
@@ -651,7 +651,7 @@ Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_
 		  ClearIndicator(indicator);
 		  break;
 	  default:
-			result =H3BR7_ERR_UnknownMessage;
+			result =H3BR7_ERR_UNKNOWNMESSAGE;
 			break;
 	}
 
@@ -1097,246 +1097,172 @@ SegmentCodes ClearAllDigits(void){
 /***************************************************************************/
 /***************************** General Functions ***************************/
 /***************************************************************************/
-Module_Status SevenDisplayNumber(int32_t Number,uint8_t StartSevSeg){
+/*
+ * DisplayNumber: Function to display a number on the Seven Segment display
+ * Number: The decimal number to be displayed (float)
+ * Res: Resolution (number of decimal places)
+ * StartSevSeg: Starting position on the Seven Segment display (1-6)
+ */
+Module_Status DisplayNumber(float Number,uint8_t Res,uint8_t StartSevSeg){
 
 	Module_Status status =H3BR7_OK;
 
-	ClearAllDigits();
+	ClearAllDigits(); /* Seven segment display off */
 
-	int32_t max_value, min_value;
-	uint8_t index_digit_last; /* the index of the last used digit int 7-segment */
-	uint8_t signal =0; /* 0 for Positive numbers, and 1 for negative numbers */
+	float max_value;
+	float min_value;
+	uint8_t index_digit_last;
+	uint8_t signal =0;
+	uint32_t Number_int;
 	uint8_t length;
+	uint8_t zero_flag =0;
+	CommaIndex =Res;
+
+/* This step is very important to set the StartSevSeg from the customer in the range 1-6.
+ *But within the code, we handle it in the range 0-5.
+ *Don't omit it.
+*/
+	if (StartSevSeg==0) {
+		status =H3BR7_ERR_WRONGPARAMS;
+		CommaFlag =0;
+		return status;
+	}
+
+	StartSevSeg=StartSevSeg-1;
+
+	StartSevSegIndex =StartSevSeg;
+	CommaFlag =1;
 
 	if(!(StartSevSeg >= 0 && StartSevSeg <= 5)){
-		status =H3BR7_ERR_WrongParams;
+		status =H3BR7_ERR_WRONGPARAMS;
+		CommaFlag =0;
 		return status;
 	}
 
-	switch(StartSevSeg){
-		case 0:
-			max_value =999999;
-			min_value =-99999;
-			break;
+	if((uint32_t )Number == 0)
+		zero_flag =1;
 
-		case 1:
-			max_value =99999;
-			min_value =-9999;
-			break;
+		switch(StartSevSeg){
+			case 0:
+				if (Res == 0) {
+					max_value =999999;
+					min_value =-99999;
+				}
+				else
+				{
+					max_value =99999.9;
+					min_value =-9999.9;
+				}
+				break;
 
-		case 2:
-			max_value =9999;
-			min_value =-999;
-			break;
+			case 1:
+				if (Res == 0) {
+					max_value =99999;
+					min_value =-9999;
+				}
+				else
+				{
+					max_value =9999.9;
+					min_value =-999.9;
+				}
+				break;
 
-		case 3:
-			max_value =999;
-			min_value =-99;
-			break;
+			case 2:
+				if (Res == 0) {
+					max_value =9999;
+					min_value =-999;
+				}
+				else
+				{
+					max_value =999.9;
+					min_value =-99.9;
+				}
+				break;
 
-		case 4:
-			max_value =99;
-			min_value =-9;
-			break;
+			case 3:
+				if (Res == 0) {
+					max_value =999;
+					min_value =-99;
+				}
+				else
+				{
+					max_value =99.9;
+					min_value =-9.9;
+				}
+				break;
 
-		case 5:
-			max_value =9;
-			min_value =0;
-			break;
+			case 4:
+				if (Res == 0) {
+					max_value =99;
+					min_value =-9;
+				}
+				else
+				{
+					max_value =9.9;
+					min_value =-9;
+				}
+				break;
 
-			// Case 5 is a special case.
-		default:
-			break;
-	}
+			case 5:
+				if (Res == 0) {
+					max_value =9;
+					min_value =0;
+				}
+				else
+				{
+					max_value =9;
+					min_value =0;
+				}
+				break;
 
-	if(StartSevSeg == 5 && (Number < 0 || Number > 9)){
-		status =H3BR7_NUMBER_IS_OUT_OF_RANGE;
-		return status;
-	}
-	if(Number > max_value || Number < min_value){
-		status =H3BR7_NUMBER_IS_OUT_OF_RANGE;
-		return status;
-	}
+			default:
+				break;
+		}
 
 	if(Number < 0){
 		signal =1;
 		Number *=-1;
 	}
 
-	if(Number > 0 && Number <= 9){
-		length =1;
-	}
-
-	if(Number > 9 && Number <= 99){
-		length =2;
-	}
-
-	if(Number > 99 && Number <= 999){
-		length =3;
-	}
-
-	if(Number > 999 && Number <= 9999){
-		length =4;
-	}
-
-	if(Number > 9999 && Number <= 99999){
-		length =5;
-	}
-
-	if(Number > 99999 && Number <= 999999){
-		length =6;
-	}
-
-	index_digit_last =length + StartSevSeg;
-	if(signal == 1){
-		Digit[index_digit_last] =SYMBOL_MINUS;
-		Digit[index_digit_last + 1] =Empty;
-	}
-
-	for(int i =StartSevSeg; i < 6; i++){
-		if(i == index_digit_last && signal == 1)
-			continue;
-		Digit[i] =GetNumberCode(Number % 10);
-		Number /=10;
-	}
-
-	for(int x =index_digit_last; x < 6; x++){
-		if(signal == 1 && x == index_digit_last)
-			continue;
-		Digit[x] =Empty;
-	}
-	HAL_Delay(10);
-	return status;
-
-}
-
-/***************************************************************************/
-Module_Status SevenDisplayNumberF(float NumberF,uint8_t Res,uint8_t StartSevSeg){
-
-	Module_Status status =H3BR7_OK;
-
-	ClearAllDigits();   /* Seven segment display off */
-
-	float max_value_comma;
-	float min_value_comma;
-	uint8_t index_digit_last;
-	uint8_t signal =0;
-	uint32_t Number_int;
-	uint8_t length;
-	uint8_t zero_flag =0;
-
-	CommaIndex =Res;
-	StartSevSegIndex =StartSevSeg;
-	CommaFlag =1;
-
-	if((uint32_t )NumberF == 0)
-		zero_flag =1;
-
-	if(!(StartSevSeg >= 0 && StartSevSeg <= 5)){
-		status =H3BR7_ERR_WrongParams;
-		CommaFlag =0;
-
-		return status;
-	}
-
-	switch(StartSevSeg){
-		case 0:
-			max_value_comma =99999.9;
-			min_value_comma =-9999.9;
-			break;
-
-		case 1:
-			max_value_comma =9999.9;
-			min_value_comma =-999.9;
-			break;
-
-		case 2:
-			max_value_comma =999.9;
-			min_value_comma =-99.9;
-			break;
-
-		case 3:
-			max_value_comma =99.9;
-			min_value_comma =-9.9;
-			break;
-
-		case 4:
-			max_value_comma =9.9;
-			min_value_comma =-9;
-			break;
-
-		case 5:
-			max_value_comma =9;
-			min_value_comma =0;
-			break;
-
-		default:
-			break;
-
-	}
-
-	if(StartSevSeg == 4 && ((NumberF < 0 || NumberF > 9.9) || (NumberF > 0 || NumberF < 0.9))){
-		status =H3BR7_NUMBER_IS_OUT_OF_RANGE;
-		CommaFlag =0;
-		return status;
-	}
-
-	if(StartSevSeg == 5 && (NumberF > 9 || NumberF < 0)){
-		status =H3BR7_NUMBER_IS_OUT_OF_RANGE;
-		CommaFlag =0;
-		return status;
-	}
-
-	if(NumberF > max_value_comma || NumberF < min_value_comma){
-		status =H3BR7_NUMBER_IS_OUT_OF_RANGE;
-		CommaFlag =0;
-		return status;
-	}
-
-	if(NumberF < 0){
-		signal =1;
-		NumberF *=-1;
-	}
-
 	switch(Res){
 		case 0:
-			Number_int =(uint32_t )NumberF;
+			Number_int =(uint32_t )Number;
 			CommaFlag =0;
 			break;
 
 		case 1:
 			if(StartSevSeg == 5)
-				Number_int =(uint32_t )NumberF;
+				Number_int =(uint32_t )Number;
 			else
-				Number_int =(uint32_t )(NumberF * 10);
+				Number_int =(uint32_t )(Number * 10);
 			break;
 
 		case 2:
 			if(StartSevSeg == 5)
-				Number_int =(uint32_t )NumberF;
+				Number_int =(uint32_t )Number;
 			else
-				Number_int =(uint32_t )(NumberF * 100);
+				Number_int =(uint32_t )(Number * 100);
 			break;
 
 		case 3:
 			if(StartSevSeg == 5)
-				Number_int =(uint32_t )NumberF;
+				Number_int =(uint32_t )Number;
 			else
-				Number_int =(uint32_t )(NumberF * 1000);
+				Number_int =(uint32_t )(Number * 1000);
 			break;
 
 		case 4:
 			if(StartSevSeg == 5)
-				Number_int =(uint32_t )NumberF;
+				Number_int =(uint32_t )Number;
 			else
-				Number_int =(uint32_t )(NumberF * 10000);
+				Number_int =(uint32_t )(Number * 10000);
 			break;
 
 		case 5:
 			if(StartSevSeg == 5)
-				Number_int =(uint32_t )NumberF;
+				Number_int =(uint32_t )Number;
 			else
-				Number_int =(uint32_t )(NumberF * 100000);
+				Number_int =(uint32_t )(Number * 100000);
 			break;
 
 		default:
@@ -1372,10 +1298,13 @@ Module_Status SevenDisplayNumberF(float NumberF,uint8_t Res,uint8_t StartSevSeg)
 		index_digit_last =length + StartSevSeg;
 	else
 		index_digit_last =Res + 1 + StartSevSeg;
+
 	if(signal == 1){
 		Digit[index_digit_last] =SYMBOL_MINUS;
 		Digit[index_digit_last + 1] =Empty;
 	}
+
+
 
 	for(int i =StartSevSeg; i < 6; i++){
 		if(i == index_digit_last && signal == 1)
@@ -1394,122 +1323,159 @@ Module_Status SevenDisplayNumberF(float NumberF,uint8_t Res,uint8_t StartSevSeg)
 }
 
 /***************************************************************************/
-Module_Status SevenDisplayQuantities(float NumberF,uint8_t Res,char Unit,uint8_t StartSevSeg){
+/*
+ *DisplayQuantities
+ *Number: number to be displayed {int or float}
+ *Res: Resolution (number of decimal places)
+ *Unit: Unit of measurement (character representing the unit)
+ *StartSevSeg: Starting position on the Seven Segment display {1-6}
+ */
+Module_Status DisplayQuantities(float Number,uint8_t Res,char Unit,uint8_t StartSevSeg){
 	Module_Status status =H3BR7_OK;
 
 	ClearAllDigits();
 
-	float max_value_comma;
-	float min_value_comma;
+	float max_value;
+	float min_value;
 	uint8_t index_digit_last;
 	uint8_t signal =0;
 	uint32_t Number_int;
 	uint8_t length;
 	uint8_t zero_flag =0;
-
 	CommaIndex =Res;
-	StartSevSegIndex =StartSevSeg + 1;
+
+/* This step is very important to set the StartSevSeg from the customer in the range 1-6.
+ *But within the code, we handle it in the range 0-5.
+ *Don't omit it.
+*/
+		if (StartSevSeg==0) {
+			status =H3BR7_ERR_WRONGPARAMS;
+			CommaFlag =0;
+			return status;
+		}
+	StartSevSeg=StartSevSeg-1;
+
+	//added +1 to StartSevSeg because the function contains a byte that points to Unit.
+	StartSevSegIndex =StartSevSeg+1;
 	CommaFlag =1;
 
-	if((uint32_t )NumberF == 0)
+	if((uint32_t )Number == 0)
 		zero_flag =1;
 
 	if(!(StartSevSeg >= 0 && StartSevSeg <= 5)){
-		status =H3BR7_ERR_WrongParams;
+		status =H3BR7_ERR_WRONGPARAMS;
 		CommaFlag =0;
 		return status;
 	}
-
 	switch(StartSevSeg){
 		case 0:
-			max_value_comma =9999.9;
-			min_value_comma =-999.9;
+			if (Res == 0) {
+				max_value =99999;
+				min_value =-9999;
+			}
+			else
+			{
+				max_value =9999.9;
+				min_value =-999.9;
+			}
 			break;
 
 		case 1:
-			max_value_comma =999.9;
-			min_value_comma =-99.9;
+			if (Res == 0) {
+				max_value =9999;
+				min_value =-999;
+			}
+			else
+			{
+				max_value =999.9;
+				min_value =-99.9;
+			}
 			break;
 
 		case 2:
-			max_value_comma =99.9;
-			min_value_comma =-9.9;
+			if (Res == 0) {
+				max_value =999;
+				min_value =-99;
+			}
+			else
+			{
+				max_value =99.9;
+				min_value =-9.9;
+			}
 			break;
 
 		case 3:
-			max_value_comma =9.9;
-			min_value_comma =0.9;
+			if (Res == 0) {
+				max_value =99;
+				min_value =-9;
+			}
+			else
+			{
+				max_value =9.9;
+				min_value =-9;
+			}
 			break;
 
 		case 4:
-			max_value_comma =9;
-			min_value_comma =0;
-			break;
-
-		case 5:
+			if (Res == 0) {
+				max_value =9;
+				min_value =0;
+			}
+			else
+			{
+				max_value =9;
+				min_value =0;
+			}
 			break;
 
 		default:
 			break;
-
 	}
 
-	if(StartSevSeg == 5){
-		status =H3BR7_NUMBER_IS_OUT_OF_RANGE;
-		CommaFlag =0;
-		return status;
-	}
-
-	if(NumberF > max_value_comma || NumberF < min_value_comma){
-		status =H3BR7_NUMBER_IS_OUT_OF_RANGE;
-		CommaFlag =0;
-		return status;
-	}
-
-	if(NumberF < 0){
+	if(Number < 0){
 		signal =1;
-		NumberF *=-1;
+		Number *=-1;
 	}
 
 	switch(Res){
 		case 0:
-			Number_int =(uint32_t )NumberF;
+			Number_int =(uint32_t )Number;
 			CommaFlag =0;
 			break;
 
 		case 1:
 			if(StartSevSeg == 5)
-				Number_int =(uint32_t )NumberF;
+				Number_int =(uint32_t )Number;
 			else
-				Number_int =(uint32_t )(NumberF * 10);
+				Number_int =(uint32_t )(Number * 10);
 			break;
 
 		case 2:
 			if(StartSevSeg == 5)
-				Number_int =(uint32_t )NumberF;
+				Number_int =(uint32_t )Number;
 			else
-				Number_int =(uint32_t )(NumberF * 100);
+				Number_int =(uint32_t )(Number * 100);
 			break;
 
 		case 3:
 			if(StartSevSeg == 5)
-				Number_int =(uint32_t )NumberF;
+				Number_int =(uint32_t )Number;
 			else
-				Number_int =(uint32_t )(NumberF * 1000);
+				Number_int =(uint32_t )(Number * 1000);
 			break;
 
 		case 4:
 			if(StartSevSeg == 5)
-				Number_int =(uint32_t )NumberF;
+				Number_int =(uint32_t )Number;
 			else
-				Number_int =(uint32_t )(NumberF * 10000);
+				Number_int =(uint32_t )(Number * 10000);
 			break;
 
 		case 5:
 			if(StartSevSeg == 5)
-				Number_int =(uint32_t )NumberF;
+				Number_int =(uint32_t )Number;
 			else
-				Number_int =(uint32_t )(NumberF * 100000);
+				Number_int =(uint32_t )(Number * 100000);
 			break;
 
 		default:
@@ -1572,26 +1538,13 @@ Module_Status SevenDisplayQuantities(float NumberF,uint8_t Res,char Unit,uint8_t
 }
 
 /***************************************************************************/
-/* */
-Module_Status SevenDisplayLetter(char letter,uint8_t StartSevSeg){
-	Module_Status status =H3BR7_OK;
-
-	ClearAllDigits();
-
-	if(!(StartSevSeg >= 0 && StartSevSeg <= 5)){
-		status =H3BR7_ERR_WrongParams;
-		return status;
-	}
-
-	Digit[StartSevSeg] =GetLetterCode(letter);
-
-	HAL_Delay(10);
-	return status;
-
-}
-
-/***************************************************************************/
-Module_Status SevenDisplaySentence(char *Sentence,uint16_t length,uint8_t StartSevSeg){
+/*
+ * DisplaySentence: Function to display a sentence on the Seven Segment display
+ * Sentence: Pointer to the character array containing the sentence to be displayed
+ * length: Length of the sentence (number of characters)
+ * StartSevSeg: Starting position on the Seven Segment display (1-6)
+ */
+Module_Status DisplaySentence(char *Sentence,uint16_t length,uint8_t StartSevSeg){
 	Module_Status status =H3BR7_OK;
 
 	ClearAllDigits();
@@ -1635,7 +1588,7 @@ Module_Status SevenDisplaySentence(char *Sentence,uint16_t length,uint8_t StartS
 	}
 
 	if(length > max_length){
-		status =H3BR7_Out_Of_Range;
+		status =H3BR7_OUT_OF_RANGE;
 		return status;
 	}
 
@@ -1659,7 +1612,12 @@ Module_Status SevenDisplaySentence(char *Sentence,uint16_t length,uint8_t StartS
 }
 
 /***************************************************************************/
-Module_Status SevenDisplayMovingSentence(char *Sentence,uint16_t length){
+/*
+ * DisplayMovingSentence: Function to display a moving sentence on the Seven Segment display
+ * Sentence: Pointer to the character array containing the sentence to be displayed
+ * length: Length of the sentence (number of characters)
+ */
+Module_Status DisplayMovingSentence(char *Sentence,uint16_t length){
 	Module_Status status =H3BR7_OK;
 
 	ClearAllDigits();
@@ -1693,7 +1651,7 @@ Module_Status SevenDisplayMovingSentence(char *Sentence,uint16_t length){
 	}
 
 	else{
-		status =H3BR7_Out_Of_Range;
+		status =H3BR7_OUT_OF_RANGE;
 		return status;
 	}
 	HAL_Delay(10);
@@ -1702,7 +1660,10 @@ Module_Status SevenDisplayMovingSentence(char *Sentence,uint16_t length){
 }
 
 /***************************************************************************/
-Module_Status SevenDisplayOff(void){
+/*
+ * DisplayOff: Function to turn off the Seven Segment display
+ */
+Module_Status DisplayOff(void){
 	Module_Status status =H3BR7_OK;
 
 	ClearAllDigits();
@@ -1712,6 +1673,10 @@ Module_Status SevenDisplayOff(void){
 }
 
 /***************************************************************************/
+/*
+ * SetIndicator: Function to set the state of an indicator LED
+ * indicator: The specific LED to be controlled
+ */
 Module_Status SetIndicator(IndicatorLED indicator){
 
 	Module_Status status =H3BR7_OK;
@@ -1742,6 +1707,10 @@ Module_Status SetIndicator(IndicatorLED indicator){
 }
 
 /***************************************************************************/
+/*
+ * ClearIndicator: Function to turn off a specific indicator LED
+ * indicator: The specific LED to be cleared
+ */
 Module_Status ClearIndicator(IndicatorLED indicator){
 
 	Module_Status status =H3BR7_OK;
@@ -1797,7 +1766,7 @@ portBASE_TYPE CLI_SevenDisplayNumberCommand( int8_t *pcWriteBuffer, size_t xWrit
 	pcParameterString2 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParameterStringLength2 );
 	StartSevSeg =(uint8_t )atol((char* )pcParameterString2);
 
-	status=SevenDisplayNumber(Number,StartSevSeg);
+//	status=SevenDisplayNumber(Number,StartSevSeg);
 
 	if(status == H3BR7_OK)
 	{
@@ -1805,7 +1774,7 @@ portBASE_TYPE CLI_SevenDisplayNumberCommand( int8_t *pcWriteBuffer, size_t xWrit
 
 	}
 
-	else if(status == H3BR7_ERR_WrongParams)
+	else if(status == H3BR7_ERR_WRONGPARAMS)
 		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
 
 	else if(status == H3BR7_NUMBER_IS_OUT_OF_RANGE)
@@ -1850,7 +1819,7 @@ portBASE_TYPE CLI_SevenDisplayNumberFCommand( int8_t *pcWriteBuffer, size_t xWri
 	 pcParameterString3 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 3, &xParameterStringLength3 );
 	 StartSevSeg =(uint8_t )atol((char* )pcParameterString3);
 
-	 status=SevenDisplayNumberF(NumberF, Res, StartSevSeg);
+//	 status=SevenDisplayNumberF(NumberF, Res, StartSevSeg);
 
 	 if(status == H3BR7_OK)
 	 {
@@ -1858,7 +1827,7 @@ portBASE_TYPE CLI_SevenDisplayNumberFCommand( int8_t *pcWriteBuffer, size_t xWri
 
 	 }
 
-	 else if(status == H3BR7_ERR_WrongParams)
+	 else if(status == H3BR7_ERR_WRONGPARAMS)
 	 		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
 
 	 else if(status == H3BR7_NUMBER_IS_OUT_OF_RANGE)
@@ -1911,19 +1880,19 @@ portBASE_TYPE CLI_SevenDisplayQuantitiesCommand( int8_t *pcWriteBuffer, size_t x
 	 		Unit = pcParameterString3[0];
 	 		if (! ((Unit >= 'a' && Unit <= 'z') || (Unit >= 'A' && Unit <= 'Z') ))
 	 		{
-	 			 status=H3BR7_ERR_WrongParams;
+	 			 status=H3BR7_ERR_WRONGPARAMS;
 	 		}
 
 	 	}
 	 	else
 	 	{
-	 		 status=H3BR7_ERR_WrongParams;
+	 		 status=H3BR7_ERR_WRONGPARAMS;
 	 	}
 
 	 pcParameterString4 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 4, &xParameterStringLength4 );
 	 StartSevSeg =(uint8_t )atol((char* )pcParameterString4);
 
-	 status=SevenDisplayQuantities(NumberF, Res, Unit, StartSevSeg);
+//	 status=SevenDisplayQuantities(NumberF, Res, Unit, StartSevSeg);
 
 	 if(status == H3BR7_OK)
 	 {
@@ -1931,7 +1900,7 @@ portBASE_TYPE CLI_SevenDisplayQuantitiesCommand( int8_t *pcWriteBuffer, size_t x
 
 	 }
 
-	 else if(status == H3BR7_ERR_WrongParams)
+	 else if(status == H3BR7_ERR_WRONGPARAMS)
 			strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
 
 	 else if(status == H3BR7_NUMBER_IS_OUT_OF_RANGE)
@@ -1968,19 +1937,19 @@ portBASE_TYPE CLI_SevenDisplayLetterCommand( int8_t *pcWriteBuffer, size_t xWrit
 		letter = pcParameterString1[0];
 		if (! ((letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z') ))
 		{
-			 status=H3BR7_ERR_WrongParams;
+			 status=H3BR7_ERR_WRONGPARAMS;
 		}
 
 	}
 	else
 	{
-		 status=H3BR7_ERR_WrongParams;
+		 status=H3BR7_ERR_WRONGPARAMS;
 	}
 
 	 pcParameterString2 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParameterStringLength2 );
 	 StartSevSeg =(uint8_t )atol((char* )pcParameterString2);
 
-	 status=SevenDisplayLetter((char)letter, StartSevSeg);
+//	 status=SevenDisplayLetter((char)letter, StartSevSeg);
 
 	 if(status == H3BR7_OK)
 	 {
@@ -1988,7 +1957,7 @@ portBASE_TYPE CLI_SevenDisplayLetterCommand( int8_t *pcWriteBuffer, size_t xWrit
 
 	 }
 
-	 else if(status == H3BR7_ERR_WrongParams)
+	 else if(status == H3BR7_ERR_WRONGPARAMS)
 	 {
 		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
 	 }
@@ -2046,7 +2015,7 @@ portBASE_TYPE CLI_SevenDisplaySentenceCommand( int8_t *pcWriteBuffer, size_t xWr
 //		 ptr++;
 //	 }
 
-	 status=SevenDisplaySentence(Sentence, xParameterStringLength2, StartSevSeg);
+//	 status=SevenDisplaySentence(Sentence, xParameterStringLength2, StartSevSeg);
 
 
 	 if(status == H3BR7_OK)
@@ -2056,7 +2025,7 @@ portBASE_TYPE CLI_SevenDisplaySentenceCommand( int8_t *pcWriteBuffer, size_t xWr
 	 else if(status == H3BR7_ERROR)
 			strcpy((char* )pcWriteBuffer,(char* )pcErrorParamsMessage);
 
-	 else if(status == H3BR7_Out_Of_Range)
+	 else if(status == H3BR7_OUT_OF_RANGE)
 			strcpy((char* )pcWriteBuffer,(char* )pcWrongRangeMessage);
 
 
@@ -2107,7 +2076,7 @@ portBASE_TYPE CLI_SevenDisplayMovingSentenceCommand( int8_t *pcWriteBuffer, size
 //		 ptr++;
 //	 }
 
-	 status=SevenDisplayMovingSentence(Sentence, xParameterStringLength1);
+//	 status=SevenDisplayMovingSentence(Sentence, xParameterStringLength1);
 
 
 	 if(status == H3BR7_OK)
@@ -2116,10 +2085,10 @@ portBASE_TYPE CLI_SevenDisplayMovingSentenceCommand( int8_t *pcWriteBuffer, size
 
 	 }
 
-	 else if(status == H3BR7_ERR_WrongParams)
+	 else if(status == H3BR7_ERR_WRONGPARAMS)
 		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
 
-	 else if(status == H3BR7_Out_Of_Range)
+	 else if(status == H3BR7_OUT_OF_RANGE)
 		strcpy((char* )pcWriteBuffer,(char* )pcWrongRangeMessage);
 
 
@@ -2136,7 +2105,7 @@ portBASE_TYPE CLI_SevenDisplayOffCommand( int8_t *pcWriteBuffer, size_t xWriteBu
 		(void )xWriteBufferLen;
 		configASSERT(pcWriteBuffer);
 
-	 	status=SevenDisplayOff();
+//	 	status=SevenDisplayOff();
 
 	 if(status == H3BR7_OK)
 	 {
