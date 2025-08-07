@@ -181,10 +181,8 @@ typedef enum{
 	INDICATOR_1=1,
 	INDICATOR_2,
 	INDICATOR_3,
-	INDICATOR_4,
+	INDICATOR_4
 
-	OFF_LED=0x00,
-	ON_LED=0xFF
 } IndicatorLED;
 
 /* Module-status Type Definition */
@@ -216,7 +214,7 @@ extern void SystemClock_Config(void);
 /***************************** General Functions ***************************/
 /***************************************************************************/
 Module_Status DisplayNumber(float Number,uint8_t Res,uint8_t StartSevSeg);
-Module_Status DisplayQuantities(float NumberF, uint8_t Res,char Unit ,uint8_t StartSevSeg);
+Module_Status DisplayQuantities(float Number, uint8_t Res,char Unit ,uint8_t StartSevSeg);
 Module_Status DisplaySentence(char *Sentance,uint16_t length,uint8_t StartSevSeg);
 Module_Status DisplayMovingSentence(char *Sentance,uint16_t length);
 Module_Status DisplayOff(void);

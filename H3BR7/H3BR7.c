@@ -23,8 +23,6 @@ UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart6;
 
 SegmentCodes Digit[7] ={Empty};   /* Digit[0]: LSD, Digit[6]: MSD */
-IndicatorLED LedStatus =OFF_LED;
-IndicatorLED OldLedStatus =ON_LED;
 
 extern TIM_HandleTypeDef htim6; /* Timer for 7-segment (6 peices) */
 
@@ -56,84 +54,64 @@ SegmentCodes GetLetterCode(char letter);
 SegmentCodes ClearAllDigits(void);
 
 /* Create CLI commands *****************************************************/
-portBASE_TYPE CLI_SevenDisplayNumberCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
-portBASE_TYPE CLI_SevenDisplayNumberFCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
-portBASE_TYPE CLI_SevenDisplayQuantitiesCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
-portBASE_TYPE CLI_SevenDisplayLetterCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
-portBASE_TYPE CLI_SevenDisplaySentenceCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
-portBASE_TYPE CLI_SevenDisplayMovingSentenceCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
-portBASE_TYPE CLI_SevenDisplayOffCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+portBASE_TYPE CLI_DisplayNumberCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+portBASE_TYPE CLI_DisplayQuantitiesCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+portBASE_TYPE CLI_DisplaySentenceCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+portBASE_TYPE CLI_DisplayMovingSentenceCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+portBASE_TYPE CLI_DisplayOffCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
 portBASE_TYPE CLI_SetIndicatorCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
 portBASE_TYPE CLI_ClearIndicatorCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
 
 /* CLI command structure ***************************************************/
-/* CLI command structure : SevenDisplayNumber */
-const CLI_Command_Definition_t CLI_SevenDisplayNumberCommandDefinition = {
-	( const int8_t * ) "seven_display_number", /* The command string to type. */
-	( const int8_t * ) "seven_display_number:\r\n Parameters required to execute a SevenDisplayNumber: Number , StartSevSeg \r\n\r\n",
-	CLI_SevenDisplayNumberCommand, /* The function to run. */
-	2 /* two parameters are expected. */
-};
-
-/***************************************************************************/
-/* CLI command structure : SevenDisplayNumberF */
-const CLI_Command_Definition_t CLI_SevenDisplayNumberFCommandDefinition = {
-	( const int8_t * ) "seven_display_numberf", /* The command string to type. */
-	( const int8_t * ) "seven_display_numberf:\r\n Parameters required to execute a SevenDisplayNumberF: NumberF , Res, StartSevSeg \r\n\r\n",
-	CLI_SevenDisplayNumberFCommand, /* The function to run. */
+/* CLI command structure : DisplayNumber */
+const CLI_Command_Definition_t CLI_DisplayNumberCommandDefinition = {
+	( const int8_t * ) "display_num", /* The command string to type. */
+	( const int8_t * ) "display_num:\r\n Parameters required to execute a DisplayNumber: Number, Res, StartSevSeg \r\n\r\n",
+	CLI_DisplayNumberCommand, /* The function to run. */
 	3 /* three parameters are expected. */
 };
 
 /***************************************************************************/
-/* CLI command structure : SevenDisplayQuantities */
-const CLI_Command_Definition_t CLI_SevenDisplayQuantitiesCommandDefinition = {
-	( const int8_t * ) "seven_display_quantities", /* The command string to type. */
-	( const int8_t * ) "seven_display_quantities:\r\n Parameters required to execute a SevenDisplayQuantities: NumberF, Res, Unit, StartSevSeg \r\n\r\n",
-	CLI_SevenDisplayQuantitiesCommand, /* The function to run. */
+/* CLI command structure : DisplayQuantities */
+const CLI_Command_Definition_t CLI_DisplayQuantitiesCommandDefinition = {
+	( const int8_t * ) "display_quant", /* The command string to type. */
+	( const int8_t * ) "display_quant:\r\n Parameters required to execute a DisplayQuantities: NumberF, Res, Unit, StartSevSeg \r\n\r\n",
+	CLI_DisplayQuantitiesCommand, /* The function to run. */
 	4 /* four parameters are expected. */
 };
 
 /***************************************************************************/
-/* CLI command structure : SevenDisplayLetter */
-const CLI_Command_Definition_t CLI_SevenDisplayLetterCommandDefinition = {
-	( const int8_t * ) "seven_display_letter", /* The command string to type. */
-	( const int8_t * ) "seven_display_letter:\r\n Parameters required to execute a SevenDisplayLetter: Letter,StartSevSeg  \r\n\r\n",
-	CLI_SevenDisplayLetterCommand, /* The function to run. */
+/* CLI command structure : DisplaySentance */
+const CLI_Command_Definition_t CLI_DisplaySentenceCommandDefinition = {
+	( const int8_t * ) "display_sent", /* The command string to type. */
+	( const int8_t * ) "display_sent:\r\nParameters required to execute a DisplaySentance:Sentence,StartSevseg,  \r\n\r\n",
+	CLI_DisplaySentenceCommand, /* The function to run. */
 	2 /* two parameters are expected. */
 };
 
 /***************************************************************************/
-/* CLI command structure : SevenDisplaySentance */
-const CLI_Command_Definition_t CLI_SevenDisplaySentenceCommandDefinition = {
-	( const int8_t * ) "seven_display_sentence", /* The command string to type. */
-	( const int8_t * ) "seven_display_sentence:\r\nParameters required to execute a SevenDisplaySentance:  StartSevseg, Sentence \r\n\r\n",
-	CLI_SevenDisplaySentenceCommand, /* The function to run. */
-	2 /* two parameters are expected. */
-};
-
-/***************************************************************************/
-/* CLI command structure : SevenDisplayMovingSentance */
-const CLI_Command_Definition_t CLI_SevenDisplayMovingSentenceCommandDefinition = {
-	( const int8_t * ) "seven_display_moving_sentence", /* The command string to type. */
-	( const int8_t * ) "seven_display_moving_sentence:\r\nParameters required to execute a SevenDisplayMovingSentence: Sentence \r\n\r\n",
-	CLI_SevenDisplayMovingSentenceCommand, /* The function to run. */
+/* CLI command structure : DisplayMovingSentance */
+const CLI_Command_Definition_t CLI_DisplayMovingSentenceCommandDefinition = {
+	( const int8_t * ) "display_mov_sent", /* The command string to type. */
+	( const int8_t * ) "display_mov_sent:\r\nParameters required to execute a DisplayMovingSentence: Sentence \r\n\r\n",
+	CLI_DisplayMovingSentenceCommand, /* The function to run. */
 	1 /* one parameters are expected. */
 };
 
 /***************************************************************************/
-/* CLI command structure : SevenDisplayOff */
-const CLI_Command_Definition_t CLI_SevenDisplayOffCommandDefinition = {
-	( const int8_t * ) "seven_display_off", /* The command string to type. */
-	( const int8_t * ) "seven_display_off:\r\nParameters required to execute a SevenDisplayOff \r\n\r\n",
-	CLI_SevenDisplayOffCommand, /* The function to run. */
+/* CLI command structure : DisplayOff */
+const CLI_Command_Definition_t CLI_DisplayOffCommandDefinition = {
+	( const int8_t * ) "display_off", /* The command string to type. */
+	( const int8_t * ) "display_off:\r\nParameters required to execute a DisplayOff \r\n\r\n",
+	CLI_DisplayOffCommand, /* The function to run. */
 	0 /* zero parameters are expected. */
 };
 
 /***************************************************************************/
 /* CLI command structure : SetIndicator */
 const CLI_Command_Definition_t CLI_SetIndicatorCommandDefinition = {
-	( const int8_t * ) "set_indicator", /* The command string to type. */
-	( const int8_t * ) "set_indicator:\r\nParameters required to execute a SetIndicator: indicator number \r\n\r\n",
+	( const int8_t * ) "set_ind", /* The command string to type. */
+	( const int8_t * ) "set_ind:\r\nParameters required to execute a SetIndicator: indicator number \r\n\r\n",
 	CLI_SetIndicatorCommand, /* The function to run. */
 	1 /* one parameters are expected. */
 };
@@ -141,8 +119,8 @@ const CLI_Command_Definition_t CLI_SetIndicatorCommandDefinition = {
 /***************************************************************************/
 /* CLI command structure : ClearIndicator */
 const CLI_Command_Definition_t CLI_ClearIndicatorCommandDefinition = {
-	( const int8_t * ) "clear_indicator", /* The command string to type. */
-	( const int8_t * ) "clear_indicator:\r\nParameters required to execute a ClearIncicator: indicator number \r\n\r\n",
+	( const int8_t * ) "clear_ind", /* The command string to type. */
+	( const int8_t * ) "clear_ind:\r\nParameters required to execute a ClearIncicator: indicator number \r\n\r\n",
 	CLI_ClearIndicatorCommand, /* The function to run. */
 	1 /* one parameters are expected. */
 };
@@ -680,13 +658,11 @@ uint8_t GetPort(UART_HandleTypeDef *huart){
 /***************************************************************************/
 /* Register this module CLI Commands */
 void RegisterModuleCLICommands(void){
-	    FreeRTOS_CLIRegisterCommand(&CLI_SevenDisplayNumberCommandDefinition);
-		FreeRTOS_CLIRegisterCommand(&CLI_SevenDisplayNumberFCommandDefinition);
-		FreeRTOS_CLIRegisterCommand(&CLI_SevenDisplayQuantitiesCommandDefinition);
-		FreeRTOS_CLIRegisterCommand(&CLI_SevenDisplayLetterCommandDefinition);
-		FreeRTOS_CLIRegisterCommand(&CLI_SevenDisplaySentenceCommandDefinition);
-		FreeRTOS_CLIRegisterCommand(&CLI_SevenDisplayMovingSentenceCommandDefinition);
-		FreeRTOS_CLIRegisterCommand(&CLI_SevenDisplayOffCommandDefinition);
+	    FreeRTOS_CLIRegisterCommand(&CLI_DisplayNumberCommandDefinition);
+		FreeRTOS_CLIRegisterCommand(&CLI_DisplayQuantitiesCommandDefinition);
+		FreeRTOS_CLIRegisterCommand(&CLI_DisplaySentenceCommandDefinition);
+		FreeRTOS_CLIRegisterCommand(&CLI_DisplayMovingSentenceCommandDefinition);
+		FreeRTOS_CLIRegisterCommand(&CLI_DisplayOffCommandDefinition);
 		FreeRTOS_CLIRegisterCommand(&CLI_SetIndicatorCommandDefinition);
 		FreeRTOS_CLIRegisterCommand(&CLI_ClearIndicatorCommandDefinition);
 }
@@ -715,17 +691,21 @@ Module_Status GetModuleParameter(uint8_t paramIndex,float *value){
 /***************************************************************************/
 /****************************** Local Functions ****************************/
 /***************************************************************************/
-/* */
+/*
+ * HAL_TIM_PeriodElapsedCallback: Callback function triggered when the timer period elapses
+ * htim: Pointer to the timer handle structure (TIM_HandleTypeDef) for the timer instance
+ */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-
+	// Check if the callback is triggered by Timer 6
 	if(htim == &htim6){
+		// Disable all Seven Segment digits (set enable pins high, assuming active-low)
 		HAL_GPIO_WritePin(SEVEN_SEG_ENABLE_1_GPIO_PORT,SEVEN_SEG_ENABLE_1_PIN,GPIO_PIN_SET);
 		HAL_GPIO_WritePin(SEVEN_SEG_ENABLE_2_GPIO_PORT,SEVEN_SEG_ENABLE_2_PIN,GPIO_PIN_SET);
 		HAL_GPIO_WritePin(SEVEN_SEG_ENABLE_3_GPIO_PORT,SEVEN_SEG_ENABLE_3_PIN,GPIO_PIN_SET);
 		HAL_GPIO_WritePin(SEVEN_SEG_ENABLE_4_GPIO_PORT,SEVEN_SEG_ENABLE_4_PIN,GPIO_PIN_SET);
 		HAL_GPIO_WritePin(SEVEN_SEG_ENABLE_5_GPIO_PORT,SEVEN_SEG_ENABLE_5_PIN,GPIO_PIN_SET);
 		HAL_GPIO_WritePin(SEVEN_SEG_ENABLE_6_GPIO_PORT,SEVEN_SEG_ENABLE_6_PIN,GPIO_PIN_SET);
-
+		// Set segment pins (A-G) based on the current digit's pattern in Digit array
 		HAL_GPIO_WritePin(SEVEN_SEG_A_GPIO_PORT,SEVEN_SEG_A_PIN,Digit[SevenSegIndex] & 0b00000001);
 		HAL_GPIO_WritePin(SEVEN_SEG_B_GPIO_PORT,SEVEN_SEG_B_PIN,Digit[SevenSegIndex] & 0b00000010);
 		HAL_GPIO_WritePin(SEVEN_SEG_C_GPIO_PORT,SEVEN_SEG_C_PIN,Digit[SevenSegIndex] & 0b00000100);
@@ -734,11 +714,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		HAL_GPIO_WritePin(SEVEN_SEG_F_GPIO_PORT,SEVEN_SEG_F_PIN,Digit[SevenSegIndex] & 0b00100000);
 		HAL_GPIO_WritePin(SEVEN_SEG_G_GPIO_PORT,SEVEN_SEG_G_PIN,Digit[SevenSegIndex] & 0b01000000);
 		HAL_GPIO_WritePin(SEVEN_SEG_DP_GPIO_PORT,SEVEN_SEG_DP_PIN,0);
-
+		// Enable decimal point if current digit is at CommaIndex and CommaFlag is set
 		if(SevenSegIndex == StartSevSegIndex + CommaIndex && CommaFlag == 1){
 			HAL_GPIO_WritePin(SEVEN_SEG_DP_GPIO_PORT,SEVEN_SEG_DP_PIN,1);
 		}
-
+		// Enable the appropriate digit based on SevenSegIndex (active-low)
 		switch(SevenSegIndex){
 			case 0:
 				HAL_GPIO_WritePin(SEVEN_SEG_ENABLE_1_GPIO_PORT,SEVEN_SEG_ENABLE_1_PIN,GPIO_PIN_RESET);
@@ -763,7 +743,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 			case 5:
 				HAL_GPIO_WritePin(SEVEN_SEG_ENABLE_6_GPIO_PORT,SEVEN_SEG_ENABLE_6_PIN,GPIO_PIN_RESET);
 				break;
-
+				// Special case: Set decimal point based on bit 7 of Digit[6]
 			case 6:
 				HAL_GPIO_WritePin(SEVEN_SEG_DP_GPIO_PORT,SEVEN_SEG_DP_PIN,Digit[6] & 0b10000000);
 				break;
@@ -772,28 +752,30 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 				break;
 
 		}
-
+		// Increment SevenSegIndex to move to the next digit
 		SevenSegIndex++;
 		if(SevenSegIndex > 7)
-			SevenSegIndex =0;
+			SevenSegIndex =0;// Reset index after exceeding 7 (6 digits + special case)
 
-		/* Processing Moving sentence: */
+		// Processing moving sentence if enabled
 		if(MovingSentenceFlag == 1){
 
 			MovingSentenceCounter++;
+		// Update display when counter reaches overflow
 			if(MovingSentenceCounter == MOVING_SENTENCE_COUNTER_OVERFLOW){
 				MovingSentenceCounter =0;
 				uint8_t temp;
+		// Update Digit array with next set of characters from MovingSentenceBuffer
 				for(int i =0; i < 6; i++){
 					temp =MovingSentenceIndex + i;
 					if(temp == MovingSentenceLength){
-						temp -=MovingSentenceLength;
+						temp -=MovingSentenceLength;// Wrap around if index exceeds length
 					}
-					Digit[5 - i] =MovingSentenceBuffer[temp];
+					Digit[5 - i] =MovingSentenceBuffer[temp];// Fill digits in reverse order
 				}
 				MovingSentenceIndex++;
 				if(MovingSentenceIndex == MovingSentenceLength){
-					MovingSentenceIndex =0;
+					MovingSentenceIndex =0;// Reset index to loop sentence
 				}
 			}
 		}
@@ -801,7 +783,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 }
 
 /***************************************************************************/
-/* */
+/*
+ * GetNumberCode: Function to retrieve the display code for a given digit
+ * digit: The numerical digit (0-9) to get the corresponding display code for
+ */
 SegmentCodes GetNumberCode(uint8_t digit){
 	Module_Status status =H3BR7_OK;
 
@@ -856,7 +841,10 @@ SegmentCodes GetNumberCode(uint8_t digit){
 }
 
 /***************************************************************************/
-/* */
+/*
+ * GetLetterCode: Function to retrieve the display code for a given letter
+ * letter: The character to get the corresponding display code for
+ */
 SegmentCodes GetLetterCode(char letter){
 	Module_Status status =H3BR7_OK;
 
@@ -1082,7 +1070,9 @@ SegmentCodes GetLetterCode(char letter){
 
 
 /***************************************************************************/
-/* */
+/*
+ * ClearAllDigits: Function to clear all digits on the Seven Segment display
+ */
 SegmentCodes ClearAllDigits(void){
 	Module_Status status =H3BR7_OK;
 
@@ -1109,17 +1099,17 @@ Module_Status DisplayNumber(float Number,uint8_t Res,uint8_t StartSevSeg){
 
 	ClearAllDigits(); /* Seven segment display off */
 
-	float max_value;
-	float min_value;
-	uint8_t index_digit_last;
+	float max_value=0;
+	float min_value=0;
+	uint8_t index_digit_last=0;
 	uint8_t signal =0;
-	uint32_t Number_int;
-	uint8_t length;
+	uint32_t Number_int=0;
+	uint8_t length=0;
 	uint8_t zero_flag =0;
 	CommaIndex =Res;
 
 /* This step is very important to set the StartSevSeg from the customer in the range 1-6.
- *But within the code, we handle it in the range 0-5.
+ *But within the code, we Processing it in the range 0-5.
  *Don't omit it.
 */
 	if (StartSevSeg==0) {
@@ -1345,7 +1335,7 @@ Module_Status DisplayQuantities(float Number,uint8_t Res,char Unit,uint8_t Start
 	CommaIndex =Res;
 
 /* This step is very important to set the StartSevSeg from the customer in the range 1-6.
- *But within the code, we handle it in the range 0-5.
+ *But within the code, we Processing it in the range 0-5.
  *Don't omit it.
 */
 		if (StartSevSeg==0) {
@@ -1553,9 +1543,18 @@ Module_Status DisplaySentence(char *Sentence,uint16_t length,uint8_t StartSevSeg
 	char letter;
 
 	if(length == 0 || Sentence == NULL){
-		status =H3BR7_ERROR;
+		status =H3BR7_ERR_WRONGPARAMS;
 		return status;
 	}
+	/* This step is very important to set the StartSevSeg from the customer in the range 1-6.
+	 *But within the code, we Processing it in the range 0-5.
+	 *Don't omit it.
+	*/
+	if (StartSevSeg==0) {
+		status =H3BR7_ERR_WRONGPARAMS;
+		return status;
+		}
+		StartSevSeg=StartSevSeg-1;
 
 	switch(StartSevSeg){
 		case 0:
@@ -1675,7 +1674,7 @@ Module_Status DisplayOff(void){
 /***************************************************************************/
 /*
  * SetIndicator: Function to set the state of an indicator LED
- * indicator: The specific LED to be controlled
+ * indicator: The specific LED to be controlled{INDICATOR_1, INDICATOR_2, INDICATOR_3, INDICATOR_4}
  */
 Module_Status SetIndicator(IndicatorLED indicator){
 
@@ -1709,7 +1708,7 @@ Module_Status SetIndicator(IndicatorLED indicator){
 /***************************************************************************/
 /*
  * ClearIndicator: Function to turn off a specific indicator LED
- * indicator: The specific LED to be cleared
+ * indicator: The specific LED to be cleared{INDICATOR_1, INDICATOR_2, INDICATOR_3, INDICATOR_4}
  */
 Module_Status ClearIndicator(IndicatorLED indicator){
 
@@ -1743,75 +1742,27 @@ Module_Status ClearIndicator(IndicatorLED indicator){
 /***************************************************************************/
 /********************************* Commands ********************************/
 /***************************************************************************/
-portBASE_TYPE CLI_SevenDisplayNumberCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
+portBASE_TYPE CLI_DisplayNumberCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H3BR7_OK;
-	int32_t Number;
-	uint8_t StartSevSeg;
-	static int8_t *pcParameterString1;
-	static int8_t *pcParameterString2;
-	portBASE_TYPE xParameterStringLength1 =0;
-	portBASE_TYPE xParameterStringLength2 =0;
-
-	static const int8_t *pcOKMessage=(int8_t* )"SevenSegmentDisplay is on:\r\n %d  \n\r";
-	static const int8_t *pcWrongParamsMessage =(int8_t* )"Wrong Params!\n\r";
-	static const int8_t *pcWrongRangeMessage =(int8_t* )"Number is out of range!\n\r";
-
-
-	(void )xWriteBufferLen;
-	configASSERT(pcWriteBuffer);
-
-	pcParameterString1 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
-	Number =(int32_t )atol((char* )pcParameterString1);
-
-	pcParameterString2 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParameterStringLength2 );
-	StartSevSeg =(uint8_t )atol((char* )pcParameterString2);
-
-//	status=SevenDisplayNumber(Number,StartSevSeg);
-
-	if(status == H3BR7_OK)
-	{
-		sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,Number);
-
-	}
-
-	else if(status == H3BR7_ERR_WRONGPARAMS)
-		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
-
-	else if(status == H3BR7_NUMBER_IS_OUT_OF_RANGE)
-		strcpy((char* )pcWriteBuffer,(char* )pcWrongRangeMessage);
-
-
-	return pdFALSE;
-}
-
-/* ----------------------------------------------------------------------------*/
-portBASE_TYPE CLI_SevenDisplayNumberFCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
-	Module_Status status = H3BR7_OK;
-	float NumberF=0;
+	float Number;
 	uint8_t Res;
 	uint8_t StartSevSeg;
-
-
 	static int8_t *pcParameterString1;
 	static int8_t *pcParameterString2;
 	static int8_t *pcParameterString3;
-
 	portBASE_TYPE xParameterStringLength1 =0;
 	portBASE_TYPE xParameterStringLength2 =0;
 	portBASE_TYPE xParameterStringLength3 =0;
-
-
-	static const int8_t *pcOKMessage=(int8_t* )"SevenSegmentDisplay is on :\r\n %f \n\r";
+	static const int8_t *formatString[50];
+	static const int8_t *pcOKMessage=(int8_t* )"SevenSegmentDisplay is on:\r\n %%0.%df \n\r";
 	static const int8_t *pcWrongParamsMessage =(int8_t* )"Wrong Params!\n\r";
-	static const int8_t *pcWrongRangeMessage =(int8_t* )"Number is out of range!\n\r";
 
 
 	(void )xWriteBufferLen;
 	configASSERT(pcWriteBuffer);
 
-
 	 pcParameterString1 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
-	 NumberF =(float )atof((char* )pcParameterString1);
+	 Number =(float )atof((char* )pcParameterString1);
 
 	 pcParameterString2 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParameterStringLength2 );
 	 Res =(uint8_t )atol((char* )pcParameterString2);
@@ -1819,32 +1770,29 @@ portBASE_TYPE CLI_SevenDisplayNumberFCommand( int8_t *pcWriteBuffer, size_t xWri
 	 pcParameterString3 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 3, &xParameterStringLength3 );
 	 StartSevSeg =(uint8_t )atol((char* )pcParameterString3);
 
-//	 status=SevenDisplayNumberF(NumberF, Res, StartSevSeg);
 
-	 if(status == H3BR7_OK)
-	 {
-			sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,NumberF);
+	status=DisplayNumber(Number,Res,StartSevSeg);
 
-	 }
+	if(status == H3BR7_OK)
+	{
+		sprintf((char* )formatString,(char* )pcOKMessage, Res);
+		sprintf((char* )pcWriteBuffer,(char* )formatString,Number);
 
-	 else if(status == H3BR7_ERR_WRONGPARAMS)
-	 		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
+	}
 
-	 else if(status == H3BR7_NUMBER_IS_OUT_OF_RANGE)
-	 		strcpy((char* )pcWriteBuffer,(char* )pcWrongRangeMessage);
-
-
-		return pdFALSE;
+	else if(status == H3BR7_ERR_WRONGPARAMS)
+		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
 
 
 
-
+	return pdFALSE;
 }
+
 /* ----------------------------------------------------------------------------*/
-portBASE_TYPE CLI_SevenDisplayQuantitiesCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
+portBASE_TYPE CLI_DisplayQuantitiesCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H3BR7_OK;
 
-	float NumberF=0;
+	float Number=0;
 	uint8_t Res;
 	char Unit ;
 	uint8_t StartSevSeg;
@@ -1854,22 +1802,22 @@ portBASE_TYPE CLI_SevenDisplayQuantitiesCommand( int8_t *pcWriteBuffer, size_t x
 	static int8_t *pcParameterString2;
 	static int8_t *pcParameterString3;
 	static int8_t *pcParameterString4;
+	static const int8_t *formatString[50];
 
 	portBASE_TYPE xParameterStringLength1 =0;
 	portBASE_TYPE xParameterStringLength2 =0;
 	portBASE_TYPE xParameterStringLength3 =0;
 	portBASE_TYPE xParameterStringLength4 =0;
 
-	static const int8_t *pcOKMessage=(int8_t* )"SevenSegmentDisplay is on:\r\n%f %c";
+	static const int8_t *pcOKMessage=(int8_t* )"SevenSegmentDisplay is on:\r\n %%0.%df %%c\n\r";
 	static const int8_t *pcWrongParamsMessage =(int8_t* )"Wrong Params!\n\r";
-	static const int8_t *pcWrongRangeMessage =(int8_t* )"Number is out of range!\n\r";
 
 
 	(void )xWriteBufferLen;
 	configASSERT(pcWriteBuffer);
 
 	 pcParameterString1 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
-	 NumberF =(float )atof((char* )pcParameterString1);
+	 Number =(float )atof((char* )pcParameterString1);
 
 	 pcParameterString2 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParameterStringLength2 );
 	 Res =(uint8_t )atol((char* )pcParameterString2);
@@ -1892,89 +1840,28 @@ portBASE_TYPE CLI_SevenDisplayQuantitiesCommand( int8_t *pcWriteBuffer, size_t x
 	 pcParameterString4 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 4, &xParameterStringLength4 );
 	 StartSevSeg =(uint8_t )atol((char* )pcParameterString4);
 
-//	 status=SevenDisplayQuantities(NumberF, Res, Unit, StartSevSeg);
+	 status=DisplayQuantities(Number, Res, Unit, StartSevSeg);
 
 	 if(status == H3BR7_OK)
 	 {
-		 sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,NumberF,Unit);
+		 sprintf((char* )formatString,(char* )pcOKMessage, Res);
+		 sprintf((char* )pcWriteBuffer,(char* )formatString,Number,Unit);
 
 	 }
 
 	 else if(status == H3BR7_ERR_WRONGPARAMS)
 			strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
 
-	 else if(status == H3BR7_NUMBER_IS_OUT_OF_RANGE)
-		 	strcpy((char* )pcWriteBuffer,(char* )pcWrongRangeMessage);
-
-
 
 	return pdFALSE;
 
 }
 
 /* ----------------------------------------------------------------------------*/
-portBASE_TYPE CLI_SevenDisplayLetterCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
+portBASE_TYPE CLI_DisplaySentenceCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H3BR7_OK;
-
-	char letter=0;
-	uint8_t StartSevSeg=0;
-
-	static int8_t *pcParameterString1;
-	static int8_t *pcParameterString2;
-
-	portBASE_TYPE xParameterStringLength1 =0;
-	portBASE_TYPE xParameterStringLength2 =0;
-
-	static const int8_t *pcOKMessage=(int8_t* )"SevenSegmentDisplay is on: \r\n %c";
-	static const int8_t *pcWrongParamsMessage =(int8_t* )"WrongParams!\n\r";
-	(void )xWriteBufferLen;
-	configASSERT(pcWriteBuffer);
-
-	 pcParameterString1 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
-
-	if(xParameterStringLength1 == 1)
-	{
-		letter = pcParameterString1[0];
-		if (! ((letter >= 'a' && letter <= 'z') || (letter >= 'A' && letter <= 'Z') ))
-		{
-			 status=H3BR7_ERR_WRONGPARAMS;
-		}
-
-	}
-	else
-	{
-		 status=H3BR7_ERR_WRONGPARAMS;
-	}
-
-	 pcParameterString2 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParameterStringLength2 );
-	 StartSevSeg =(uint8_t )atol((char* )pcParameterString2);
-
-//	 status=SevenDisplayLetter((char)letter, StartSevSeg);
-
-	 if(status == H3BR7_OK)
-	 {
-		 sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,letter);
-
-	 }
-
-	 else if(status == H3BR7_ERR_WRONGPARAMS)
-	 {
-		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
-	 }
-
-
-	return pdFALSE;
-
-}
-
-/* ----------------------------------------------------------------------------*/
-portBASE_TYPE CLI_SevenDisplaySentenceCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
-	Module_Status status = H3BR7_OK;
-//	char Sentance[6] = {0};
 	char* Sentence = NULL;
-//	const int8_t* ptr;
 	uint8_t StartSevSeg;
-
 
 	static int8_t *pcParameterString1;
 	static int8_t *pcParameterString2;
@@ -1985,61 +1872,41 @@ portBASE_TYPE CLI_SevenDisplaySentenceCommand( int8_t *pcWriteBuffer, size_t xWr
 
 	static const int8_t *pcOKMessage=(int8_t* )"SevenSegmentDisplay is on:\r\n %s \n\r";
 	static const int8_t *pcErrorParamsMessage =(int8_t* )"Error Params!\n\r";
-	static const int8_t *pcWrongRangeMessage =(int8_t* )"Number is out of range!\n\r";
+	static const int8_t *pcWrongRangeParamsMessage =(int8_t* )"Number is out of range!\n\r";
 
 	(void )xWriteBufferLen;
 	configASSERT(pcWriteBuffer);
 
-
-
-
-
-//	 pcParameterString1 =(char *)FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
-//	 length =(uint16_t )atol((char* )pcParameterString1);
-
-
 	 pcParameterString1 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
-	 StartSevSeg =(uint8_t )atol((char* )pcParameterString1);
+	 Sentence =(char* )pcParameterString1;
 
 	 pcParameterString2 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParameterStringLength2 );
-	 Sentence =(char* )pcParameterString2;
+	 StartSevSeg =(uint8_t )atol((char* )pcParameterString2);
 
 
-//	 ptr = pcCommandString;
-//	 for (int i=0;i< 25 + xParameterStringLength1 + xParameterStringLength2;i++) ptr++;
-//	 int i =0;
-//	 while(*ptr != 0x00)
-//	 {
-//		 Sentance[i] = *ptr;
-//		 i++;
-//		 ptr++;
-//	 }
 
-//	 status=SevenDisplaySentence(Sentence, xParameterStringLength2, StartSevSeg);
-
+	 status=DisplaySentence(Sentence, xParameterStringLength1, StartSevSeg);
 
 	 if(status == H3BR7_OK)
 	 {
 		    sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,Sentence);
 	 }
-	 else if(status == H3BR7_ERROR)
+	 else if(status == H3BR7_OUT_OF_RANGE)
+			strcpy((char* )pcWriteBuffer,(char* )pcWrongRangeParamsMessage);
+
+	 else if(status == H3BR7_ERR_WRONGPARAMS)
 			strcpy((char* )pcWriteBuffer,(char* )pcErrorParamsMessage);
 
-	 else if(status == H3BR7_OUT_OF_RANGE)
-			strcpy((char* )pcWriteBuffer,(char* )pcWrongRangeMessage);
 
 
 	return pdFALSE;
 
-
 }
 
 /* ----------------------------------------------------------------------------*/
-portBASE_TYPE CLI_SevenDisplayMovingSentenceCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
+portBASE_TYPE CLI_DisplayMovingSentenceCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H3BR7_OK;
-//	char Sentance[MOVING_SENTENCE_MAX_LENGTH] = {0};
 	char* Sentence = NULL;
-//	const int8_t* ptr;
 	uint16_t length;
 
 	static int8_t *pcParameterString1;
@@ -2048,35 +1915,15 @@ portBASE_TYPE CLI_SevenDisplayMovingSentenceCommand( int8_t *pcWriteBuffer, size
 
 
 	static const int8_t *pcOKMessage=(int8_t* )"SevenSegmentDisplay is on:\r\n %s \n\r";
-	static const int8_t *pcWrongParamsMessage =(int8_t* )"Wrong Params!\n\r";
 	static const int8_t *pcWrongRangeMessage =(int8_t* )"Number is out of range!\n\r";
 
 	(void )xWriteBufferLen;
 	configASSERT(pcWriteBuffer);
 
-
-
-
-
-//	 pcParameterString1 =(char *)FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
-//	 length =(uint16_t )atol((char* )pcParameterString1);
-
-
 	 pcParameterString1 =(char *)FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
 	 Sentence = (char* )pcParameterString1;
 
-
-//	 ptr = pcCommandString;
-//	 for (int i=0;i< 25 + 7 + xParameterStringLength1;i++) ptr++;
-//	 int i =0;
-//	 while(*ptr != 0x00)
-//	 {
-//		 Sentance[i] = *ptr;
-//		 i++;
-//		 ptr++;
-//	 }
-
-//	 status=SevenDisplayMovingSentence(Sentence, xParameterStringLength1);
+	 status=DisplayMovingSentence(Sentence, xParameterStringLength1);
 
 
 	 if(status == H3BR7_OK)
@@ -2084,9 +1931,6 @@ portBASE_TYPE CLI_SevenDisplayMovingSentenceCommand( int8_t *pcWriteBuffer, size
 		 sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,Sentence);
 
 	 }
-
-	 else if(status == H3BR7_ERR_WRONGPARAMS)
-		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
 
 	 else if(status == H3BR7_OUT_OF_RANGE)
 		strcpy((char* )pcWriteBuffer,(char* )pcWrongRangeMessage);
@@ -2096,7 +1940,7 @@ portBASE_TYPE CLI_SevenDisplayMovingSentenceCommand( int8_t *pcWriteBuffer, size
 }
 
 /* ----------------------------------------------------------------------------*/
-portBASE_TYPE CLI_SevenDisplayOffCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
+portBASE_TYPE CLI_DisplayOffCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H3BR7_OK;
 
 	static const int8_t *pcOKMessage=(int8_t* )"SevenSegmentDisplay is off \n\r";
@@ -2105,7 +1949,7 @@ portBASE_TYPE CLI_SevenDisplayOffCommand( int8_t *pcWriteBuffer, size_t xWriteBu
 		(void )xWriteBufferLen;
 		configASSERT(pcWriteBuffer);
 
-//	 	status=SevenDisplayOff();
+	 	status=DisplayOff();
 
 	 if(status == H3BR7_OK)
 	 {
@@ -2120,6 +1964,7 @@ portBASE_TYPE CLI_SevenDisplayOffCommand( int8_t *pcWriteBuffer, size_t xWriteBu
 	return pdFALSE;
 
 }
+
 /*-----------------------------------------------------------*/
 portBASE_TYPE CLI_SetIndicatorCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H3BR7_OK;
@@ -2129,7 +1974,7 @@ portBASE_TYPE CLI_SetIndicatorCommand( int8_t *pcWriteBuffer, size_t xWriteBuffe
 
 	portBASE_TYPE xParameterStringLength1 =0;
 
-	static const int8_t *pcOKMessage=(int8_t* )"SetIndicator is on \r\n  \n\r";
+	static const int8_t *pcOKMessage=(int8_t* )"SetIndicator %d is on \r\n  \n\r";
 	static const int8_t *pcWrongParamsMessage =(int8_t* )"Wrong Params!\n\r";
 
 
@@ -2155,6 +2000,7 @@ portBASE_TYPE CLI_SetIndicatorCommand( int8_t *pcWriteBuffer, size_t xWriteBuffe
 
 	return pdFALSE;
 }
+
 /*-----------------------------------------------------------*/
 portBASE_TYPE CLI_ClearIndicatorCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H3BR7_OK;
@@ -2164,7 +2010,7 @@ portBASE_TYPE CLI_ClearIndicatorCommand( int8_t *pcWriteBuffer, size_t xWriteBuf
 
 	portBASE_TYPE xParameterStringLength1 =0;
 
-	static const int8_t *pcOKMessage=(int8_t* )"SetIndicator is on \r\n  \n\r";
+	static const int8_t *pcOKMessage=(int8_t* )"SetIndicator %d is off \r\n  \n\r";
 	static const int8_t *pcWrongParamsMessage =(int8_t* )"Wrong Params!\n\r";
 
 
@@ -2190,6 +2036,7 @@ portBASE_TYPE CLI_ClearIndicatorCommand( int8_t *pcWriteBuffer, size_t xWriteBuf
 
 	return pdFALSE;
 }
+
 /*-----------------------------------------------------------*/
 
 /************************ (C) COPYRIGHT HEXABITZ *****END OF FILE****/
