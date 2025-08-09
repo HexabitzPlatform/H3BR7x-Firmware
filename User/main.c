@@ -10,14 +10,7 @@
 #include "BOS.h"
 
 /* Private variables *******************************************************/
-float adcValue1 = 0;
-float adcValue2 = 0;
-float adcValue3 = 0;
-float adcValue4 = 0;
-float percentageAdcValue1 = 0;
-float percentageAdcValue2 = 0;
-float percentageAdcValue3 = 0;
-float percentageAdcValue4 = 0;
+
 /* Private Function Prototypes *********************************************/
 
 /* Main Function ***********************************************************/
@@ -34,19 +27,32 @@ int main(void){
 /***************************************************************************/
 /* User Task */
 void UserTask(void *argument){
-	 ADCSelectPort(P2);
-	 ADCSelectPort(P3);
+
 	/* put your code here, to run repeatedly. */
 	while(1){
-			ReadADCChannel(P3, TOP, &adcValue1);
-			ReadADCChannel(P3, BOTTOM, &adcValue2);
-			ReadADCChannel(P2, TOP, &adcValue3);
-			ReadADCChannel(P2, BOTTOM, &adcValue4);
+		DisplayNumber(-27.9,1, 1);
+		Delay_ms(1000);
+		DisplayOff();
+		SetIndicator(INDICATOR_2);
+		SetIndicator(INDICATOR_3);
+		Delay_ms(1000);
+		DisplayNumber(-24,0, 1);
+		Delay_ms(1000);
+		DisplayQuantities(153.4 ,1 ,'S',2);
+		Delay_ms(1000);
+		SetIndicator(INDICATOR_1);
+		SetIndicator(INDICATOR_4);
+		Delay_ms(1000);
+		DisplaySentence("Hello", 5, 1);
+		ClearIndicator(INDICATOR_3);
+		Delay_ms(1000);
+		DisplayMovingSentence("Hexabitz platform", 17);
+		ClearIndicator(INDICATOR_4);
+		Delay_ms(10000);
+		ClearIndicator(INDICATOR_1);
+		ClearIndicator(INDICATOR_2);
+		Delay_ms(1000);
 
-			GetReadPercentage(P3, TOP, &percentageAdcValue1);
-			GetReadPercentage(P3, BOTTOM, &percentageAdcValue2);
-			GetReadPercentage(P2, TOP, &percentageAdcValue3);
-			GetReadPercentage(P2, BOTTOM, &percentageAdcValue4);
 
 }
 }
