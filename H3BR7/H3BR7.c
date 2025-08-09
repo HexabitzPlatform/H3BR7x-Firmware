@@ -1057,6 +1057,7 @@ SegmentCodes GetLetterCode(char letter){
 /***************************************************************************/
 /*
  * ClearAllDigits: Function to clear all digits on the Seven Segment display
+ * In case of parameters {}
  */
 SegmentCodes ClearAllDigits(void){
 	Module_Status status =H3BR7_OK;
@@ -1068,7 +1069,21 @@ SegmentCodes ClearAllDigits(void){
 	MovingSentenceFlag =0;
 	MovingSentenceCounter =0;
 }
+/*
+ * DisplayError: Function to display the word "error" on the Seven Segment display
+ * In case of status{H3BR7_OUT_OF_RANGE OR H3BR7_ERR_WRONGPARAMS }
+ */
+Module_Status DisplayError(void){
+	char SentenceError[5] ="error";
+	uint8_t StartSevSegError =1;
+	char letter;
 
+	for(int x =4; x >= 0; x--){
+		letter =SentenceError[x];
+		Digit[StartSevSegError] =GetLetterCode(letter);
+		StartSevSegError++;
+	}
+}
 /***************************************************************************/
 /***************************** General Functions ***************************/
 /***************************************************************************/
@@ -1098,8 +1113,10 @@ Module_Status DisplayNumber(float Number,uint8_t Res,uint8_t StartSevSeg){
  *Don't omit it.
 */
 	if (StartSevSeg==0) {
-		status =H3BR7_ERR_WRONGPARAMS;
+		CommaIndex =0;
 		CommaFlag =0;
+		DisplayError();
+		status =H3BR7_ERR_WRONGPARAMS;
 		return status;
 	}
 
@@ -1109,8 +1126,10 @@ Module_Status DisplayNumber(float Number,uint8_t Res,uint8_t StartSevSeg){
 	CommaFlag =1;
 
 	if(!(StartSevSeg >= 0 && StartSevSeg <= 5)){
-		status =H3BR7_ERR_WRONGPARAMS;
+		CommaIndex =0;
 		CommaFlag =0;
+		DisplayError();
+		status =H3BR7_ERR_WRONGPARAMS;
 		return status;
 	}
 
@@ -1249,25 +1268,39 @@ Module_Status DisplayNumber(float Number,uint8_t Res,uint8_t StartSevSeg){
 		length =1;
 	}
 
-	if(Number_int > 9 && Number_int <= 99){
+	else if(Number_int > 9 && Number_int <= 99){
 		length =2;
 	}
 
-	if(Number_int > 99 && Number_int <= 999){
+	else if(Number_int > 99 && Number_int <= 999){
 		length =3;
 	}
 
-	if(Number_int > 999 && Number_int <= 9999){
+	else if(Number_int > 999 && Number_int <= 9999){
 		length =4;
 	}
 
-	if(Number_int > 9999 && Number_int <= 99999){
+	else if(Number_int > 9999 && Number_int <= 99999){
 		length =5;
 	}
 
-	if(Number_int > 99999 && Number_int <= 999999){
+	else if(Number_int > 99999 && Number_int <= 999999){
 		length =6;
 	}
+	else{
+		length =0;
+	}
+
+
+
+	if(Number > max_value || Number < min_value || length == 0 || (length + signal) > 6 || (length + signal) > (6 - StartSevSeg)){
+		DisplayError();
+		CommaIndex =0;
+		CommaFlag =0;
+		status =H3BR7_OUT_OF_RANGE;
+		return status;
+	}
+
 
 	if(zero_flag == 0)
 		index_digit_last =length + StartSevSeg;
@@ -1310,12 +1343,12 @@ Module_Status DisplayQuantities(float Number,uint8_t Res,char Unit,uint8_t Start
 
 	ClearAllDigits();
 
-	float max_value;
-	float min_value;
-	uint8_t index_digit_last;
+	float max_value=0;
+	float min_value=0;
+	uint8_t index_digit_last=0;
 	uint8_t signal =0;
-	uint32_t Number_int;
-	uint8_t length;
+	uint32_t Number_int=0;
+	uint8_t length=0;
 	uint8_t zero_flag =0;
 	CommaIndex =Res;
 
@@ -1324,8 +1357,10 @@ Module_Status DisplayQuantities(float Number,uint8_t Res,char Unit,uint8_t Start
  *Don't omit it.
 */
 		if (StartSevSeg==0) {
-			status =H3BR7_ERR_WRONGPARAMS;
+			CommaIndex =0;
 			CommaFlag =0;
+			DisplayError();
+			status =H3BR7_ERR_WRONGPARAMS;
 			return status;
 		}
 	StartSevSeg=StartSevSeg-1;
@@ -1338,8 +1373,10 @@ Module_Status DisplayQuantities(float Number,uint8_t Res,char Unit,uint8_t Start
 		zero_flag =1;
 
 	if(!(StartSevSeg >= 0 && StartSevSeg <= 5)){
-		status =H3BR7_ERR_WRONGPARAMS;
+		CommaIndex =0;
 		CommaFlag =0;
+		DisplayError();
+		status =H3BR7_ERR_WRONGPARAMS;
 		return status;
 	}
 	switch(StartSevSeg){
@@ -1462,24 +1499,32 @@ Module_Status DisplayQuantities(float Number,uint8_t Res,char Unit,uint8_t Start
 		length =1;
 	}
 
-	if(Number_int > 9 && Number_int <= 99){
+	else if(Number_int > 9 && Number_int <= 99){
 		length =2;
 	}
 
-	if(Number_int > 99 && Number_int <= 999){
+	else if(Number_int > 99 && Number_int <= 999){
 		length =3;
 	}
 
-	if(Number_int > 999 && Number_int <= 9999){
+	else if(Number_int > 999 && Number_int <= 9999){
 		length =4;
 	}
 
-	if(Number_int > 9999 && Number_int <= 99999){
+	else if(Number_int > 9999 && Number_int <= 99999){
 		length =5;
 	}
 
-	if(Number_int > 99999 && Number_int <= 999999){
-		length =6;
+	else{
+		length =0;
+	}
+
+	if(Number > max_value || Number < min_value || length == 0 || (length + signal) > 5 || (length + signal) > (5 - StartSevSeg)){
+		DisplayError();
+		CommaIndex =0;
+		CommaFlag =0;
+		status =H3BR7_OUT_OF_RANGE;
+		return status;
 	}
 
 	if(zero_flag == 0)
@@ -1518,28 +1563,32 @@ Module_Status DisplayQuantities(float Number,uint8_t Res,char Unit,uint8_t Start
  * Sentence: Pointer to the character array containing the sentence to be displayed
  * length: Length of the sentence (number of characters)
  * StartSevSeg: Starting position on the Seven Segment display (1-6)
+ * The parameter sentence can also display numbers
  */
 Module_Status DisplaySentence(char *Sentence,uint16_t length,uint8_t StartSevSeg){
 	Module_Status status =H3BR7_OK;
 
 	ClearAllDigits();
 
-	uint16_t max_length;
+	uint16_t max_length =0;
+
 	char letter;
 
 	if(length == 0 || Sentence == NULL){
+		DisplayError();
 		status =H3BR7_ERR_WRONGPARAMS;
 		return status;
 	}
 	/* This step is very important to set the StartSevSeg from the customer in the range 1-6.
 	 *But within the code, we Processing it in the range 0-5.
 	 *Don't omit it.
-	*/
-	if (StartSevSeg==0) {
+	 */
+	if(StartSevSeg == 0){
+		DisplayError();
 		status =H3BR7_ERR_WRONGPARAMS;
 		return status;
-		}
-		StartSevSeg=StartSevSeg-1;
+	}
+	StartSevSeg =StartSevSeg - 1;
 
 	switch(StartSevSeg){
 		case 0:
@@ -1572,6 +1621,8 @@ Module_Status DisplaySentence(char *Sentence,uint16_t length,uint8_t StartSevSeg
 	}
 
 	if(length > max_length){
+
+		DisplayError();
 		status =H3BR7_OUT_OF_RANGE;
 		return status;
 	}
@@ -1597,9 +1648,10 @@ Module_Status DisplaySentence(char *Sentence,uint16_t length,uint8_t StartSevSeg
 
 /***************************************************************************/
 /*
- * DisplayMovingSentence: Function to display a moving sentence on the Seven Segment display
+ * DisplayMovingSentence: Function to Show a moving string on the display with a given length and range of (0-100), and can also display numbers.
  * Sentence: Pointer to the character array containing the sentence to be displayed
  * length: Length of the sentence (number of characters)
+ * Note that when writing in CLI we put spaces between words (_)
  */
 Module_Status DisplayMovingSentence(char *Sentence,uint16_t length){
 	Module_Status status =H3BR7_OK;
@@ -1607,6 +1659,7 @@ Module_Status DisplayMovingSentence(char *Sentence,uint16_t length){
 	ClearAllDigits();
 
 	if(length == 0 || Sentence == NULL){
+		DisplayError();
 		status =H3BR7_ERROR;
 		return status;
 	}
@@ -1635,6 +1688,7 @@ Module_Status DisplayMovingSentence(char *Sentence,uint16_t length){
 	}
 
 	else{
+		DisplayError();
 		status =H3BR7_OUT_OF_RANGE;
 		return status;
 	}
@@ -1741,6 +1795,7 @@ portBASE_TYPE CLI_DisplayNumberCommand( int8_t *pcWriteBuffer, size_t xWriteBuff
 	static const int8_t *formatString[50];
 	static const int8_t *pcOKMessage=(int8_t* )"SevenSegmentDisplay is on:\r\n %%0.%df \n\r";
 	static const int8_t *pcWrongParamsMessage =(int8_t* )"Wrong Params!\n\r";
+	static const int8_t *pcWrongRangeMessage =(int8_t* )"Number is out of range!\n\r";
 
 
 	(void )xWriteBufferLen;
@@ -1767,6 +1822,9 @@ portBASE_TYPE CLI_DisplayNumberCommand( int8_t *pcWriteBuffer, size_t xWriteBuff
 
 	else if(status == H3BR7_ERR_WRONGPARAMS)
 		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
+
+	else if(status == H3BR7_OUT_OF_RANGE)
+			strcpy((char* )pcWriteBuffer,(char* )pcWrongRangeMessage);
 
 
 
@@ -1796,6 +1854,7 @@ portBASE_TYPE CLI_DisplayQuantitiesCommand( int8_t *pcWriteBuffer, size_t xWrite
 
 	static const int8_t *pcOKMessage=(int8_t* )"SevenSegmentDisplay is on:\r\n %%0.%df %%c\n\r";
 	static const int8_t *pcWrongParamsMessage =(int8_t* )"Wrong Params!\n\r";
+	static const int8_t *pcWrongRangeMessage =(int8_t* )"Number is out of range!\n\r";
 
 
 	(void )xWriteBufferLen;
@@ -1836,6 +1895,9 @@ portBASE_TYPE CLI_DisplayQuantitiesCommand( int8_t *pcWriteBuffer, size_t xWrite
 
 	 else if(status == H3BR7_ERR_WRONGPARAMS)
 			strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
+
+	 else if(status == H3BR7_OUT_OF_RANGE)
+	 		strcpy((char* )pcWriteBuffer,(char* )pcWrongRangeMessage);
 
 
 	return pdFALSE;
