@@ -563,63 +563,61 @@ void Module_Peripheral_Init(void){
 Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_t dst,uint8_t shift){
 	Module_Status result = H3BR7_OK;
 
-	int32_t Number=0;
-	uint8_t StartSevSeg=0;
-
+	float NumberF =0;
+	uint8_t StartSevSeg =0;
 	uint32_t Number_int;
-	float NumberF;
-	uint8_t Res=0;
+	uint8_t Res =0;
 	char Unit;
+	uint8_t length;
 
-    uint8_t length;
-
-    IndicatorLED indicator;
+	IndicatorLED indicator;
 
 	switch(code){
-	  case CODE_H3BRX_DISPLAY_NUMBER:
-	  Number=((int32_t )cMessage[port - 1][shift] ) + ((int32_t )cMessage[port - 1][1 + shift] << 8) + ((int32_t )cMessage[port - 1][2 + shift] << 16) + ((int32_t )cMessage[port - 1][3 + shift] << 24);
-	  Res=(uint8_t)cMessage[port - 1][4+shift];
-	  StartSevSeg=(uint8_t)cMessage[port - 1][5+shift];
-	  DisplayNumber(Number,Res, StartSevSeg);
-	  break;
+		case CODE_H3BRX_DISPLAY_NUMBER:
+			Number_int =((int32_t )cMessage[port - 1][shift]) + ((int32_t )cMessage[port - 1][1 + shift] << 8) + ((int32_t )cMessage[port - 1][2 + shift] << 16) + ((int32_t )cMessage[port - 1][3 + shift] << 24);
+			NumberF =*((float* )&Number_int);
+			Res =(uint8_t )cMessage[port - 1][4 + shift];
+			StartSevSeg =(uint8_t )cMessage[port - 1][5 + shift];
+			DisplayNumber(NumberF,Res,StartSevSeg);
+			break;
 
-	  case CODE_H3BRX_DISPLAY_QUANTITIES:
-	  Number=((int32_t )cMessage[port - 1][shift] ) + ((int32_t )cMessage[port - 1][1 + shift] << 8) + ((int32_t )cMessage[port - 1][2 + shift] << 16) + ((int32_t )cMessage[port - 1][3 + shift] << 24);
-	  Res=(uint8_t)cMessage[port - 1][4+shift];
-	  Unit=(uint8_t)cMessage[port - 1][5+shift];
-	  StartSevSeg=(uint8_t)cMessage[port - 1][6+shift];
-	  DisplayQuantities(Number,Res,Unit, StartSevSeg);
-	  break;
+		case CODE_H3BRX_DISPLAY_QUANTITIES:
+			Number_int =((int32_t )cMessage[port - 1][shift]) + ((int32_t )cMessage[port - 1][1 + shift] << 8) + ((int32_t )cMessage[port - 1][2 + shift] << 16) + ((int32_t )cMessage[port - 1][3 + shift] << 24);
+			NumberF =*((float* )&Number_int);
+			Res =(uint8_t )cMessage[port - 1][4 + shift];
+			Unit =(uint8_t )cMessage[port - 1][5 + shift];
+			StartSevSeg =(uint8_t )cMessage[port - 1][6 + shift];
+			DisplayQuantities(NumberF,Res,Unit,StartSevSeg);
+			break;
 
-	  case CODE_H3BRX_DISPLAY_SENTENCE:
-		  length=(uint8_t)cMessage[port - 1][shift];
-		  StartSevSeg=(uint8_t)cMessage[port - 1][1+shift];
-		  DisplaySentence((char *)&cMessage[port-1][2 + shift], length, StartSevSeg);
-		  break;
+		case CODE_H3BRX_DISPLAY_SENTENCE:
+			length =(uint8_t )cMessage[port - 1][shift];
+			StartSevSeg =(uint8_t )cMessage[port - 1][1 + shift];
+			DisplaySentence((char* )&cMessage[port - 1][2 + shift],length,StartSevSeg);
+			break;
 
-	  case CODE_H3BRX_DISPLAY_MOVING_SENTENCE:
-		  length=(uint8_t)cMessage[port - 1][shift];
-		  DisplayMovingSentence((char *)&cMessage[port-1][1 + shift], length);
-		  break;
+		case CODE_H3BRX_DISPLAY_MOVING_SENTENCE:
+			length =(uint8_t )cMessage[port - 1][shift];
+			DisplayMovingSentence((char* )&cMessage[port - 1][1 + shift],length);
+			break;
 
-	  case CODE_H3BRX_DISPLAY_OFF:
-		  DisplayOff();
-		  break;
+		case CODE_H3BRX_DISPLAY_OFF:
+			DisplayOff();
+			break;
 
-	  case CODE_H3BRX_SET_INDICATOR:
-		  indicator=(uint8_t)cMessage[port - 1][shift];
-		  SetIndicator(indicator);
-		  break;
+		case CODE_H3BRX_SET_INDICATOR:
+			indicator =(uint8_t )cMessage[port - 1][shift];
+			SetIndicator(indicator);
+			break;
 
-	  case CODE_H3BRX_CLEAR_INDICATOR:
-		  indicator=(uint8_t)cMessage[port - 1][shift];
-		  ClearIndicator(indicator);
-		  break;
-	  default:
+		case CODE_H3BRX_CLEAR_INDICATOR:
+			indicator =(uint8_t )cMessage[port - 1][shift];
+			ClearIndicator(indicator);
+			break;
+		default:
 			result =H3BR7_ERR_UNKNOWNMESSAGE;
 			break;
 	}
-
 
 	return result;
 }
